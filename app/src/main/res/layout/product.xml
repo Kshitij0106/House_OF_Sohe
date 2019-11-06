@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="5dp"
+    android:elevation="6dp"
+    app:cardUseCompatPadding="true"
+    app:cardCornerRadius="6dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginRight="5dp">
+
+        <ImageView
+            android:id="@+id/prodImage"
+            android:layout_width="180dp"
+            android:layout_height="160dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="5dp"
+            android:paddingTop="6dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_image_black_24dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/prodName"
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:layout_marginTop="5dp"
+                android:layout_marginLeft="3dp"
+                android:layout_weight="2"
+                android:text="Jeans"
+                android:textColor="#000" />
+
+            <ImageView
+                android:id="@+id/addToButton"
+                android:layout_width="5dp"
+                android:background="#fff"
+                android:layout_height="20dp"
+                android:layout_marginTop="5dp"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                android:src="@drawable/ic_add_black_24dp" />
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="5dp"
+            android:background="#00BCD4" />
+
+        <TextView
+            android:id="@+id/prodDescription"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:text="Kalamkari top with chanderi umbrella shirt"
+            android:layout_marginLeft="3dp"
+            android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/prodPrice"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textSize="12sp"
+            android:visibility="gone"
+            android:layout_marginTop="5dp" />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
