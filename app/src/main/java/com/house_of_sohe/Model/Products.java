@@ -1,12 +1,12 @@
 package com.house_of_sohe.Model;
 
 public class Products {
-    private String prodImg, prodName, prodPrice, prodDesc, prodQty, prodSize, prodCode;
+    private String prodImg, prodName, prodPrice, prodDesc, prodQty, prodSize, prodCode, prodDate, OID;
 
     public Products() {
     }
 
-    public Products(String prodImg, String prodName, String prodPrice, String prodDesc, String prodQty, String prodSize, String prodCode) {
+    public Products(String prodImg, String prodName, String prodPrice, String prodDesc, String prodQty, String prodSize, String prodCode, String dateOfOrder, String OID) {
         this.prodImg = prodImg;
         this.prodName = prodName;
         this.prodPrice = prodPrice;
@@ -14,6 +14,18 @@ public class Products {
         this.prodQty = prodQty;
         this.prodSize = prodSize;
         this.prodCode = prodCode;
+        this.prodDate = dateOfOrder;
+        this.OID = OID;
+    }
+
+    public Products(String prodImg, String prodName, String prodPrice, String prodQty, String prodSize, String prodDate, String OID) {
+        this.prodImg = prodImg;
+        this.prodName = prodName;
+        this.prodPrice = prodPrice;
+        this.prodQty = prodQty;
+        this.prodSize = prodSize;
+        this.prodDate = prodDate;
+        this.OID = OID;
     }
 
     public String getProdImg() {
@@ -70,5 +82,21 @@ public class Products {
 
     public void setProdCode(String prodCode) {
         this.prodCode = prodCode;
+    }
+
+    public String getProdDate() {
+        return prodDate;
+    }
+
+    public void setProdDate(String prodDate) {
+        this.prodDate = prodDate;
+    }
+
+    public String getOID() {
+        return OID;
+    }
+
+    public void setOID(String OID) {
+        this.OID = OID;
     }
 }

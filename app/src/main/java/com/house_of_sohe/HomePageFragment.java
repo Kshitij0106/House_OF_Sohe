@@ -1,18 +1,9 @@
 package com.house_of_sohe;
 
-import android.Manifest;
 import android.app.Dialog;
-import android.content.Context;
-import android.content.pm.PackageManager;
-import android.location.Address;
-import android.location.Geocoder;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -23,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
@@ -45,15 +35,12 @@ import com.house_of_sohe.ViewHolder.TopHeadingsViewHolder;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class HomePageFragment extends Fragment {
     private TextView locationText;
 
     private ImageView filterCategories;
     private Dialog filterDialog;
-
-    private LocationManager lm;
 
     private DatabaseReference bannerRef;
     private ArrayList<BannerImages> images;
@@ -72,7 +59,7 @@ public class HomePageFragment extends Fragment {
     private FirebaseRecyclerAdapter<TopHeadings, TopHeadingsViewHolder> categoryAdapter;
 
     private FirebaseAuth auth;
-    private DatabaseReference wishListRef, cartRef;
+    private DatabaseReference wishListRef, cartRef, userRef;
     private FloatingActionMenu fabMenu;
     private FloatingActionButton fabCart, fabWishList, fabSettings;
 
@@ -110,17 +97,17 @@ public class HomePageFragment extends Fragment {
         topHeadings();
         category();
         getImages();
-        showLocation();
+        showLocation(uid);
         setFab(view,uid);
 
         return view;
     }
 
     public void showCategories() {
-        filterDialog = new Dialog(getActivity());
+        filterDialog = new Dialog(getActivity(),R.style.Category_Dialog);
         final TextView cancelText, blouseCategory, kurtaCategory, suitCategory, pantsCategory, lehengaCategory, dressesCategory, palazzoCategory;
 
-        filterDialog.setContentView(R.layout.category_popup_layout);
+        filterDialog.setContentView(R.layout.category_popup_layout_dialog);
         cancelText = filterDialog.findViewById(R.id.cancelText);
         blouseCategory = filterDialog.findViewById(R.id.blouseCategory);
         kurtaCategory = filterDialog.findViewById(R.id.kurtaCategory);
@@ -332,40 +319,23 @@ public class HomePageFragment extends Fragment {
         imgBanner.setOutAnimation(getActivity(), android.R.anim.fade_out);
     }
 
-    public void showLocation() {
+    public void showLocation(String Uid) {
+        userRef = FirebaseDatabase.getInstance().getReference("Users").child(Uid);
 
-        lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-
-        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, new LocationListener() {
-                @Override
-                public void onLocationChanged(Location location) {
-
-                    Geocoder geocoder = new Geocoder(getActivity());
-                    try {
-                        List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
-                        String adr = addresses.get(0).getAddressLine(0);
-                        locationText.setText(adr);
-                    } catch (Exception e) {
-
-                    }
+        userRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.child("userColony").exists()){
+                    locationText.setText(dataSnapshot.child("userColony").getValue().toString());
+                }else{
+                    locationText.setText("");
                 }
+            }
 
-                @Override
-                public void onStatusChanged(String s, int i, Bundle bundle) {
-                }
-
-                @Override
-                public void onProviderEnabled(String s) {
-                }
-
-                @Override
-                public void onProviderDisabled(String s) {
-                }
-            });
-        }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
     }
 
     public void setFab(View view1,String uid) {

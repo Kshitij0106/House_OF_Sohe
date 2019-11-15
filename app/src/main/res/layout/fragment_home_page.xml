@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".HomePageFragment"
-    android:padding="2dp">
+    android:padding="2dp"
+    android:background="#FEEAE6">
 
     <TextView
         android:id="@+id/locationText"
@@ -14,6 +15,8 @@
         android:layout_marginBottom="10dp"
         android:drawableLeft="@drawable/ic_location_on_black_24dp"
         android:textColor="#000"
+        android:gravity="center"
+        android:textAlignment="center"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -142,10 +145,9 @@
         app:menu_openDirection="up"
         app:menu_backgroundColor="@android:color/transparent"
         android:layout_margin="16dp"
-        app:menu_labels_textColor="#fff"
-        app:menu_labels_colorNormal="#000"
-        app:menu_colorNormal="#44D7EB"
-        app:menu_colorPressed="@color/colorAccent">
+        app:menu_labels_textColor="#232F34"
+        app:menu_labels_colorNormal="#EF9A9A"
+        app:menu_colorNormal="#E53935">
 
         <com.github.clans.fab.FloatingActionButton
             android:id="@+id/fabSettings"
@@ -153,7 +155,7 @@
             android:layout_height="wrap_content"
             app:fab_label="Settings"
             app:fab_size="mini"
-            app:fab_colorNormal="#44D7EB"
+            app:fab_colorNormal="#E53935"
             android:src="@drawable/ic_settings_black_24dp"/>
 
         <com.github.clans.fab.FloatingActionButton
@@ -162,7 +164,7 @@
             android:layout_height="wrap_content"
             app:fab_label="WishList"
             app:fab_size="mini"
-            app:fab_colorNormal="#44D7EB"
+            app:fab_colorNormal="#E53935"
             android:src="@drawable/wishlist_icon"/>
 
         <com.github.clans.fab.FloatingActionButton
@@ -171,7 +173,7 @@
             android:layout_height="wrap_content"
             app:fab_label="Cart"
             app:fab_size="mini"
-            app:fab_colorNormal="#44D7EB"
+            app:fab_colorNormal="#E53935"
             android:src="@drawable/cart_icon"/>
 
     </com.github.clans.fab.FloatingActionMenu>

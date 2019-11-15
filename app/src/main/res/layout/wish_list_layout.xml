@@ -10,8 +10,8 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
-        android:layout_height="240dp">
-
+        android:layout_height="240dp"
+        android:background="#FEEAE6">
 
         <ImageView
             android:id="@+id/wishListProductImage"
@@ -43,8 +43,10 @@
             android:layout_height="30dp"
             android:textAlignment="center"
             android:textSize="18sp"
+            android:background="#FEEAE6"
             android:text="RS.999"
-            android:textColor="#000"
+            android:textStyle="bold"
+            android:textColor="#442C2E"
             android:layout_marginBottom="4dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -53,6 +55,7 @@
             android:id="@+id/wishListToCart"
             android:layout_width="30dp"
             android:layout_height="30dp"
+            android:background="#FEEAE6"
             android:layout_marginEnd="8dp"
             android:layout_marginRight="8dp"
             android:layout_marginTop="2dp"

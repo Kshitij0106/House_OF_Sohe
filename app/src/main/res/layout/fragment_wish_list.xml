@@ -4,6 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:background="#FEDBD0"
     android:layout_height="match_parent"
     tools:context=".WishList">
 
@@ -16,7 +17,7 @@
         android:layout_marginTop="17dp"
         android:text="WishList"
         android:gravity="center"
-        android:textColor="#000"
+        android:textColor="#442C2E"
         android:textSize="30sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"

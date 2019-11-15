@@ -2,11 +2,10 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="350dp"
     android:layout_height="250dp"
     android:layout_gravity="center"
-    android:background="@drawable/banner_background">
+    android:background="#F8BBD0">
 
     <TextView
         android:id="@+id/closeText"
@@ -14,11 +13,11 @@
         android:layout_height="30dp"
         android:layout_gravity="end"
         android:gravity="center"
-        android:textAlignment="center"
         android:text="X"
+        android:textAlignment="center"
+        android:textColor="#000"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:textColor="#000"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.978"
@@ -29,7 +28,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Add To"
+        android:text="Add To :-"
         android:textAlignment="center"
         android:textColor="#000"
         android:textSize="35sp"
@@ -41,12 +40,13 @@
         app:layout_constraintVertical_bias="0.229" />
 
     <ImageView
+        android:id="@+id/addToCartDialog"
         android:layout_width="150dp"
         android:layout_height="80dp"
-        android:id="@+id/addToCartDialog"
+        android:layout_marginLeft="15dp"
+        android:background="#EF9A9A"
         android:src="@drawable/add_to_cart"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:background="#F44336"
         app:layout_constraintEnd_toStartOf="@+id/addToWishListDialog"
         app:layout_constraintHorizontal_bias="0.60"
         app:layout_constraintStart_toStartOf="parent"
@@ -57,17 +57,17 @@
         android:id="@+id/textView"
         android:layout_width="150dp"
         android:layout_height="30dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginLeft="20dp"
+        android:layout_marginStart="26dp"
+        android:layout_marginLeft="26dp"
+        android:layout_marginTop="2dp"
+        android:background="#EF9A9A"
         android:text="Cart"
-        android:background="#F44336"
         android:textAlignment="center"
-        android:textColor="#000"
+        android:textColor="#FFF"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/addToCartDialog"
-        app:layout_constraintHorizontal_bias="0.65"
         app:layout_constraintVertical_bias="0.0" />
 
     <ImageView
@@ -76,7 +76,7 @@
         android:layout_height="80dp"
         android:layout_marginEnd="16dp"
         android:layout_marginRight="16dp"
-        android:background="#009688"
+        android:background="#CE93D8"
         android:src="@drawable/add_to_wishlist"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -86,17 +86,16 @@
     <TextView
         android:layout_width="150dp"
         android:layout_height="30dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:background="#CE93D8"
         android:text="WishList"
         android:textAlignment="center"
-        android:textColor="#000"
+        android:textColor="#FFF"
         android:textSize="20sp"
-        android:background="#009688"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.448"
-        app:layout_constraintStart_toEndOf="@+id/textView"
         app:layout_constraintTop_toBottomOf="@+id/addToCartDialog"
-        app:layout_constraintVertical_bias="0.0" />
-
+        app:layout_constraintVertical_bias="0.111" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

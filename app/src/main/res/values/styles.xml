@@ -11,5 +11,15 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
+    <style name="Dialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:background">#F8BBD0</item>
+    </style>
+    <style name="Category_Dialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:background">#FEDBD0</item>
+    </style>
+    <style name="Address_Dialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:background">#FEEAE6</item>
+    </style>
+
 
 </resources>

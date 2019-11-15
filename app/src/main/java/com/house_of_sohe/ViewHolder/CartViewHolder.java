@@ -12,7 +12,7 @@ import com.house_of_sohe.R;
 
 public class CartViewHolder extends RecyclerView.ViewHolder {
     public ImageView imageInCart;
-    public TextView nameInCart, sizeInCart, priceInCart, removeFromCart;
+    public TextView nameInCart, sizeInCart, priceInCart, removeFromCart, selectSize;
     public ElegantNumberButton qtyInCart;
 
     public CartViewHolder(@NonNull View itemView) {
@@ -23,6 +23,7 @@ public class CartViewHolder extends RecyclerView.ViewHolder {
         sizeInCart = itemView.findViewById(R.id.sizeInCart);
         priceInCart = itemView.findViewById(R.id.priceInCart);
         qtyInCart = itemView.findViewById(R.id.qtyInCart);
+        selectSize = itemView.findViewById(R.id.selectSize);
         removeFromCart = itemView.findViewById(R.id.removeFromCart);
     }
 }

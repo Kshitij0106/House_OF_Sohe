@@ -1,6 +1,7 @@
 package com.house_of_sohe;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
@@ -9,10 +10,13 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,17 +30,21 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.house_of_sohe.Model.Orders;
 import com.house_of_sohe.Model.Products;
 import com.house_of_sohe.ViewHolder.CartViewHolder;
 import com.squareup.picasso.Picasso;
 
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 public class CartFragment extends Fragment implements View.OnClickListener {
-    private TextView cartToWishList, clearCart, cartSubTotal, cartDeliveryPrice, cartTotalPrice, emptyCart, showNow;
+    private TextView cartSubTotal, cartDeliveryPrice, cartTotalPrice, emptyCart, showNow, goToOrders;
+    private ImageView cartToWishList, clearCart;
     private Button cartVerifyDetails, cartPlaceOrder;
     private RecyclerView cartRecyclerview;
 
@@ -46,7 +54,8 @@ public class CartFragment extends Fragment implements View.OnClickListener {
 
     private FirebaseAuth auth;
 
-    private List<Integer> subTotalAmt;
+    private DatabaseReference userRef, ordersRef;
+    private List<Products> productsList;
 
     public CartFragment() {
         // Required empty public constructor
@@ -61,11 +70,12 @@ public class CartFragment extends Fragment implements View.OnClickListener {
         clearCart = view.findViewById(R.id.clearCart);
         emptyCart = view.findViewById(R.id.emptyCart);
         showNow = view.findViewById(R.id.shopNow);
+        goToOrders = view.findViewById(R.id.goToOrders);
 
         cartSubTotal = view.findViewById(R.id.cartSubTotal);
         cartDeliveryPrice = view.findViewById(R.id.cartDeliveryPrice);
         cartTotalPrice = view.findViewById(R.id.cartTotalPrice);
-        subTotalAmt = new ArrayList<>();
+        productsList = new ArrayList<>();
 
         cartVerifyDetails = view.findViewById(R.id.cartVerifyDetails);
         cartPlaceOrder = view.findViewById(R.id.cartPlaceOrder);
@@ -73,15 +83,15 @@ public class CartFragment extends Fragment implements View.OnClickListener {
         cartToWishList.setOnClickListener(this);
         clearCart.setOnClickListener(this);
         cartVerifyDetails.setOnClickListener(this);
-        cartPlaceOrder.setOnClickListener(this);
         showNow.setOnClickListener(this);
+        goToOrders.setOnClickListener(this);
 
         cartRecyclerview = view.findViewById(R.id.cartRecyclerView);
         cartRecyclerview.setHasFixedSize(true);
 
         auth = FirebaseAuth.getInstance();
-        FirebaseUser user = auth.getCurrentUser();
-        String uid = user.getUid();
+        final FirebaseUser user = auth.getCurrentUser();
+        final String uid = user.getUid();
 
         cartReference = FirebaseDatabase.getInstance().getReference("Cart").child(uid);
         cartOptions = new FirebaseRecyclerOptions.Builder<Products>().setQuery(cartReference, Products.class).build();
@@ -91,21 +101,23 @@ public class CartFragment extends Fragment implements View.OnClickListener {
                 Picasso.get().load(products.getProdImg()).fit().centerCrop().into(cartViewHolder.imageInCart);
                 cartViewHolder.nameInCart.setText(products.getProdName());
                 cartViewHolder.qtyInCart.setNumber(products.getProdQty());
+                cartViewHolder.sizeInCart.setText(products.getProdSize());
 
                 Locale locale = new Locale("en", "IN");
                 final NumberFormat format = NumberFormat.getCurrencyInstance(locale);
-                final int prodAmt = Integer.parseInt(products.getProdQty()) * Integer.parseInt(products.getProdPrice());
+                int prodAmt = Integer.parseInt(products.getProdQty()) * Integer.parseInt(products.getProdPrice());
+//                cartViewHolder.priceInCart.setText(prodAmt);
+//                String amt = cartViewHolder.priceInCart.getText().toString();
                 cartViewHolder.priceInCart.setText(format.format(prodAmt));
 
-                subTotalAmt.add(prodAmt);
+                cartViewHolder.selectSize.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        setSizeDialog(products.getProdCode());
+                    }
+                });
 
-                if (products.getProdSize().equals("")) {
-                    cartViewHolder.sizeInCart.setText("");
-                } else {
-                    cartViewHolder.sizeInCart.setText(products.getProdSize());
-                }
-
-                cartViewHolder.qtyInCart.setRange(0, 100);
+                cartViewHolder.qtyInCart.setRange(0, 5);
                 if (cartViewHolder.qtyInCart.getNumber().equals("0")) {
                     cartReference.child(products.getProdCode()).removeValue();
                 }
@@ -121,6 +133,9 @@ public class CartFragment extends Fragment implements View.OnClickListener {
                         cartReference.child(products.getProdCode()).child("prodQty").setValue(newQty);
                     }
                 });
+                SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy");
+                String currDate = sdf.format(new Date());
+                String oID = String.valueOf(System.currentTimeMillis());
 
                 cartViewHolder.removeFromCart.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -143,6 +158,10 @@ public class CartFragment extends Fragment implements View.OnClickListener {
                         removeDialog.show();
                     }
                 });
+
+                productsList.add(new Products(products.getProdImg(), products.getProdName(), products.getProdPrice(),
+                        products.getProdQty(), products.getProdSize(), currDate, oID));
+
             }
 
             @NonNull
@@ -158,12 +177,13 @@ public class CartFragment extends Fragment implements View.OnClickListener {
         cartRecyclerview.setAdapter(cartAdapter);
         cartAdapter.startListening();
 
-        cartReference.addValueEventListener(new ValueEventListener() {
+        userRef = FirebaseDatabase.getInstance().getReference("Users").child(uid);
+        userRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(!dataSnapshot.exists()){
-                    emptyCart.setVisibility(View.VISIBLE);
-                    showNow.setVisibility(View.VISIBLE);
+                if (!dataSnapshot.child("userHouseNo").exists() || !dataSnapshot.child("userColony").exists() ||
+                        !dataSnapshot.child("userPinCode").exists() || !dataSnapshot.child("userCity").exists()) {
+                            setAddressDialog();
                 }
             }
 
@@ -173,32 +193,168 @@ public class CartFragment extends Fragment implements View.OnClickListener {
             }
         });
 
-//        total(subTotalAmt);
+        checkCart();
+
+        cartPlaceOrder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Orders orders = new Orders(user.getEmail(), productsList);
+                ordersRef = FirebaseDatabase.getInstance().getReference("Orders").child(uid);
+
+                ordersRef.setValue(orders);
+
+                Toast.makeText(getActivity(), "Order Placed", Toast.LENGTH_SHORT).show();
+
+                cartReference.removeValue();
+                getFragmentManager().beginTransaction().replace(R.id.mainPage,new CartFragment()).addToBackStack(null).commit();
+
+            }
+        });
 
         return view;
     }
 
-//    public void total(List<Integer> subTotalAmt) {
-//        int subtotal=0;
-//        if(subtotal == 0){
-//            cartSubTotal.setText("");
-//            cartDeliveryPrice.setText("");
-//            cartTotalPrice.setText("");
-//        }
-//        for (int i = 0; i <= subTotalAmt.size(); i++) {
-//            subtotal += subTotalAmt.get(i);
-//        }
-//        Locale locale = new Locale("en", "IN");
-//        NumberFormat fmt = NumberFormat.getCurrencyInstance(locale);
-//        cartSubTotal.setText(fmt.format(subtotal));
-//        cartDeliveryPrice.setText(fmt.format(99));
+    public void checkCart(){
+        cartReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull final DataSnapshot dataSnapshot) {
+                if (!dataSnapshot.exists()) {
+                    emptyCart.setVisibility(View.VISIBLE);
+                    showNow.setVisibility(View.VISIBLE);
+                    goToOrders.setVisibility(View.VISIBLE);
+                    cartPlaceOrder.setEnabled(false);
+                    clearCart.setEnabled(false);
+                }
+            }
 
-//        String cartSubTotalAmt = cartSubTotal.getText().toString();
-//        String cartDeliveryAmt = cartDeliveryPrice.getText().toString();
-//        int cartTotalAmt = Integer.parseInt(cartSubTotalAmt) + Integer.parseInt(cartDeliveryAmt);
-//
-//        cartTotalPrice.setText(fmt.format(cartTotalAmt));
-//    }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void setSizeDialog(final String code) {
+        final Dialog sizeDialog = new Dialog(getActivity(), R.style.Category_Dialog);
+        sizeDialog.setContentView(R.layout.size_layout_dialog);
+        final TextView smallSize, mediumSize, largeSize, extraLargeSize, doubleExtraLargeSize, closeSizeDialog;
+
+        smallSize = sizeDialog.findViewById(R.id.smallSizeCategory);
+        mediumSize = sizeDialog.findViewById(R.id.mediumSizeCategory);
+        largeSize = sizeDialog.findViewById(R.id.largeSizeCategory);
+        extraLargeSize = sizeDialog.findViewById(R.id.extraLargeSizeCategory);
+        doubleExtraLargeSize = sizeDialog.findViewById(R.id.doubleExtraLargeSizeCategory);
+        closeSizeDialog = sizeDialog.findViewById(R.id.closeSizeDialog);
+
+        sizeDialog.setCancelable(false);
+        sizeDialog.show();
+
+        closeSizeDialog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sizeDialog.dismiss();
+            }
+        });
+
+        smallSize.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                cartReference.child(code).child("prodSize").setValue("S");
+                sizeDialog.dismiss();
+                getFragmentManager().beginTransaction().replace(R.id.mainPage, new CartFragment()).addToBackStack(null).commit();
+            }
+        });
+        mediumSize.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                cartReference.child(code).child("prodSize").setValue("M");
+                sizeDialog.dismiss();
+                getFragmentManager().beginTransaction().replace(R.id.mainPage, new CartFragment()).addToBackStack(null).commit();
+            }
+        });
+        largeSize.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                cartReference.child(code).child("prodSize").setValue("L");
+                sizeDialog.dismiss();
+                getFragmentManager().beginTransaction().replace(R.id.mainPage, new CartFragment()).addToBackStack(null).commit();
+            }
+        });
+        extraLargeSize.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                cartReference.child(code).child("prodSize").setValue("XL");
+                sizeDialog.dismiss();
+                getFragmentManager().beginTransaction().replace(R.id.mainPage, new CartFragment()).addToBackStack(null).commit();
+            }
+        });
+        doubleExtraLargeSize.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                cartReference.child(code).child("prodSize").setValue("XXL");
+                sizeDialog.dismiss();
+                getFragmentManager().beginTransaction().replace(R.id.mainPage, new CartFragment()).addToBackStack(null).commit();
+            }
+        });
+
+    }
+
+    public void setAddressDialog() {
+        final Dialog addDialog = new Dialog(getActivity(), R.style.Address_Dialog);
+        addDialog.setContentView(R.layout.address_layout_dialog);
+        final EditText completeHouseNo, completeColony, completePinCode, completeCity, completeLandmark;
+        final Button confirm;
+
+        completeHouseNo = addDialog.findViewById(R.id.completeHouseNo);
+        completeColony = addDialog.findViewById(R.id.completeColony);
+        completePinCode = addDialog.findViewById(R.id.completePinCode);
+        completeCity = addDialog.findViewById(R.id.completeCity);
+        completeLandmark = addDialog.findViewById(R.id.completeLandmark);
+        confirm = addDialog.findViewById(R.id.confirmAddress);
+
+        cartPlaceOrder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                addDialog.show();
+                addDialog.setCancelable(false);
+            }
+        });
+
+        confirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String cHouse = completeHouseNo.getText().toString();
+                String cColony = completeColony.getText().toString();
+                String cPinCode = completePinCode.getText().toString();
+                String cCity = completeCity.getText().toString();
+                String cLandmark = completeLandmark.getText().toString();
+
+                if(cHouse.isEmpty()){
+                    completeHouseNo.setError("Add Correct House No");
+                }
+                if (cColony.isEmpty()) {
+                    completeColony.setError("Add Correct Colony");
+                }
+                if (cPinCode.isEmpty()) {
+                   completePinCode.setError("Add Correct Pin Code");
+                }
+                if (cCity.isEmpty()) {
+                    completeCity.setError("Add Correct City");
+                }else {
+                    userRef.child("userHouseNo").setValue(cHouse);
+                    userRef.child("userColony").setValue(cColony);
+                    userRef.child("userPinCode").setValue(cPinCode);
+                    userRef.child("userCity").setValue(cCity);
+                    userRef.child("userLandmark").setValue(cLandmark);
+
+                    Toast.makeText(getActivity(), "Address Updated Successfully", Toast.LENGTH_SHORT).show();
+                    addDialog.dismiss();
+                    getFragmentManager().beginTransaction().replace(R.id.mainPage,new CartFragment()).addToBackStack(null).commit();
+                }
+            }
+        });
+
+    }
 
     @Override
     public void onClick(View view) {
@@ -227,11 +383,11 @@ public class CartFragment extends Fragment implements View.OnClickListener {
             case R.id.cartVerifyDetails:
                 Toast.makeText(getActivity(), "bdj", Toast.LENGTH_SHORT).show();
                 break;
-            case R.id.cartPlaceOrder:
-                Toast.makeText(getActivity(), "njdsnvk", Toast.LENGTH_SHORT).show();
-                break;
             case R.id.shopNow:
-                getFragmentManager().beginTransaction().replace(R.id.mainPage,new HomePageFragment()).commit();
+                getFragmentManager().beginTransaction().replace(R.id.mainPage, new HomePageFragment()).commit();
+                break;
+            case R.id.goToOrders:
+                getFragmentManager().beginTransaction().replace(R.id.mainPage, new OrdersFragment()).commit();
                 break;
         }
     }
@@ -257,3 +413,4 @@ public class CartFragment extends Fragment implements View.OnClickListener {
             cartAdapter.stopListening();
     }
 }
+
