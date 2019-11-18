@@ -278,6 +278,7 @@ public class TopHeadingsFragment extends Fragment {
         });
     }
 
+
     @Override
     public void onStart() {
         super.onStart();

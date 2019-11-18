@@ -16,7 +16,7 @@
         <ImageView
             android:id="@+id/verticalProdImage"
             android:layout_width="145dp"
-            android:layout_height="170dp"
+            android:layout_height="150dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
@@ -28,10 +28,8 @@
             android:id="@+id/verticalProdName"
             android:layout_width="203dp"
             android:layout_height="45dp"
-            android:layout_marginTop="10dp"
-            android:text="Kurta"
-            android:padding="4dp"
             android:gravity="center"
+            android:padding="4dp"
             android:textAlignment="center"
             android:textColor="#000"
             android:textSize="25sp"
@@ -53,35 +51,32 @@
         <TextView
             android:id="@+id/verticalProdDesc"
             android:layout_width="233dp"
-            android:layout_height="55dp"
-            android:layout_marginBottom="55dp"
-            android:text="Kalamkari top with a pair of jeans"
+            android:layout_height="64dp"
+            android:padding="4dp"
             android:textAlignment="center"
             android:textColor="#000"
-            android:gravity="center"
-            android:padding="4dp"
             android:textSize="15sp"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.111"
             app:layout_constraintStart_toEndOf="@+id/verticalProdImage"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="1.0" />
+            app:layout_constraintTop_toBottomOf="@+id/verticalProdName"
+            app:layout_constraintVertical_bias="0.0" />
 
         <TextView
             android:id="@+id/verticalProdPrice"
             android:layout_width="233dp"
             android:layout_height="40dp"
-            android:text="Rs.1299"
-            android:textAlignment="center"
             android:gravity="center"
+            android:padding="4dp"
+            android:textAlignment="center"
             android:textColor="#000"
             android:textSize="15sp"
-            android:padding="4dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.111"
-            app:layout_constraintStart_toEndOf="@+id/verticalProdImage" />
+            app:layout_constraintStart_toEndOf="@+id/verticalProdImage"
+            app:layout_constraintTop_toBottomOf="@+id/verticalProdDesc"
+            app:layout_constraintVertical_bias="0.0" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -10,10 +10,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ViewFlipper;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
@@ -201,12 +203,19 @@ public class HomePageFragment extends Fragment {
                     topHeadingsViewHolder.seeAll.setVisibility(View.INVISIBLE);
                 }
 
-                ProductsAdapter adapter = new ProductsAdapter(getContext(), prodList);
+                final ProductsAdapter adapter = new ProductsAdapter(getContext(), prodList);
 
                 topHeadingsViewHolder.productsRecyclerView.setHasFixedSize(true);
                 topHeadingsViewHolder.productsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false));
                 topHeadingsViewHolder.productsRecyclerView.setAdapter(adapter);
                 adapter.notifyDataSetChanged();
+
+                adapter.setOnCardClickListener(new ProductsAdapter.OnCardClickListener() {
+                    @Override
+                    public void OnCardClicked(int position, String prodCode) {
+                       goToProductDetailsFragment(topHeadingsViewHolder.title.getText().toString(),prodCode);
+                    }
+                });
 
                 topHeadingsViewHolder.productsRecyclerView.setNestedScrollingEnabled(false);
 
@@ -221,8 +230,6 @@ public class HomePageFragment extends Fragment {
                         getFragmentManager().beginTransaction().replace(R.id.mainPage, bundleTopHeadings).addToBackStack("").commit();
                     }
                 });
-
-
             }
 
             @NonNull
@@ -232,6 +239,7 @@ public class HomePageFragment extends Fragment {
                 TopHeadingsViewHolder thvh = new TopHeadingsViewHolder(view1);
                 return thvh;
             }
+            
         };
 
         topHeadingsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -245,7 +253,7 @@ public class HomePageFragment extends Fragment {
         categoryOptions = new FirebaseRecyclerOptions.Builder<TopHeadings>().setQuery(categoryRef, TopHeadings.class).build();
         categoryAdapter = new FirebaseRecyclerAdapter<TopHeadings, TopHeadingsViewHolder>(categoryOptions) {
             @Override
-            protected void onBindViewHolder(@NonNull TopHeadingsViewHolder topHeadingsViewHolder, int i, @NonNull final TopHeadings topHeadings) {
+            protected void onBindViewHolder(@NonNull final TopHeadingsViewHolder topHeadingsViewHolder, int i, @NonNull final TopHeadings topHeadings) {
                 topHeadingsViewHolder.title.setText(topHeadings.getTitle());
                 prodList = topHeadings.getProducts();
 
@@ -255,6 +263,13 @@ public class HomePageFragment extends Fragment {
                 topHeadingsViewHolder.productsRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(),2));
                 topHeadingsViewHolder.productsRecyclerView.setAdapter(adapter);
                 adapter.notifyDataSetChanged();
+
+                adapter.setOnCardClickListener(new ProductsAdapter.OnCardClickListener() {
+                    @Override
+                    public void OnCardClicked(int position, final String prodCode) {
+                        goToProductDetailsFragment(topHeadingsViewHolder.title.getText().toString(),prodCode);
+                    }
+                });
 
                 topHeadingsViewHolder.productsRecyclerView.setNestedScrollingEnabled(false);
 
@@ -280,6 +295,17 @@ public class HomePageFragment extends Fragment {
         categoryRecyclerView.setAdapter(categoryAdapter);
         categoryAdapter.startListening();
         categoryAdapter.notifyDataSetChanged();
+    }
+
+    public void goToProductDetailsFragment(String title,String prodCode){
+        Bundle prodRef = new Bundle();
+        prodRef.putString("title",title);
+        prodRef.putString("prodCode",prodCode);
+
+        ProductDetailsFragment pdf = new ProductDetailsFragment();
+        pdf.setArguments(prodRef);
+
+        getFragmentManager().beginTransaction().replace(R.id.mainPage, pdf).addToBackStack("").commit();
     }
 
     private void getImages() {

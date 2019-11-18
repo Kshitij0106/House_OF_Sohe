@@ -93,6 +93,45 @@ public class CartFragment extends Fragment implements View.OnClickListener {
         final FirebaseUser user = auth.getCurrentUser();
         final String uid = user.getUid();
 
+        loadData(uid);
+        checkCart();
+
+        userRef = FirebaseDatabase.getInstance().getReference("Users").child(uid);
+        userRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (!dataSnapshot.child("userHouseNo").exists() || !dataSnapshot.child("userColony").exists() ||
+                        !dataSnapshot.child("userPinCode").exists() || !dataSnapshot.child("userCity").exists()) {
+                    setAddressDialog();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getActivity(), ""+databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        cartPlaceOrder.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Orders orders = new Orders(user.getEmail(), productsList);
+                ordersRef = FirebaseDatabase.getInstance().getReference("Orders").child(uid);
+
+                ordersRef.setValue(orders);
+
+                Toast.makeText(getActivity(), "Order Placed", Toast.LENGTH_SHORT).show();
+
+                cartReference.removeValue();
+                getFragmentManager().beginTransaction().replace(R.id.mainPage,new CartFragment()).addToBackStack(null).commit();
+
+            }
+        });
+
+        return view;
+    }
+
+    private void loadData(String uid){
         cartReference = FirebaseDatabase.getInstance().getReference("Cart").child(uid);
         cartOptions = new FirebaseRecyclerOptions.Builder<Products>().setQuery(cartReference, Products.class).build();
         cartAdapter = new FirebaseRecyclerAdapter<Products, CartViewHolder>(cartOptions) {
@@ -176,45 +215,9 @@ public class CartFragment extends Fragment implements View.OnClickListener {
         cartRecyclerview.setLayoutManager(new LinearLayoutManager(getActivity()));
         cartRecyclerview.setAdapter(cartAdapter);
         cartAdapter.startListening();
-
-        userRef = FirebaseDatabase.getInstance().getReference("Users").child(uid);
-        userRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (!dataSnapshot.child("userHouseNo").exists() || !dataSnapshot.child("userColony").exists() ||
-                        !dataSnapshot.child("userPinCode").exists() || !dataSnapshot.child("userCity").exists()) {
-                            setAddressDialog();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
-        checkCart();
-
-        cartPlaceOrder.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Orders orders = new Orders(user.getEmail(), productsList);
-                ordersRef = FirebaseDatabase.getInstance().getReference("Orders").child(uid);
-
-                ordersRef.setValue(orders);
-
-                Toast.makeText(getActivity(), "Order Placed", Toast.LENGTH_SHORT).show();
-
-                cartReference.removeValue();
-                getFragmentManager().beginTransaction().replace(R.id.mainPage,new CartFragment()).addToBackStack(null).commit();
-
-            }
-        });
-
-        return view;
     }
 
-    public void checkCart(){
+    private void checkCart(){
         cartReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull final DataSnapshot dataSnapshot) {
@@ -299,7 +302,7 @@ public class CartFragment extends Fragment implements View.OnClickListener {
 
     }
 
-    public void setAddressDialog() {
+    private void setAddressDialog() {
         final Dialog addDialog = new Dialog(getActivity(), R.style.Address_Dialog);
         addDialog.setContentView(R.layout.address_layout_dialog);
         final EditText completeHouseNo, completeColony, completePinCode, completeCity, completeLandmark;
@@ -353,7 +356,6 @@ public class CartFragment extends Fragment implements View.OnClickListener {
                 }
             }
         });
-
     }
 
     @Override

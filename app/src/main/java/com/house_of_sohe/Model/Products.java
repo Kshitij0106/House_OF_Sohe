@@ -1,12 +1,12 @@
 package com.house_of_sohe.Model;
 
 public class Products {
-    private String prodImg, prodName, prodPrice, prodDesc, prodQty, prodSize, prodCode, prodDate, OID;
+    private String prodImg, prodName, prodPrice, prodDesc, prodQty, prodSize, prodCode, prodDate, OID, prodInfo;
 
     public Products() {
     }
 
-    public Products(String prodImg, String prodName, String prodPrice, String prodDesc, String prodQty, String prodSize, String prodCode, String dateOfOrder, String OID) {
+    public Products(String prodImg, String prodName, String prodPrice, String prodDesc, String prodQty, String prodSize, String prodCode, String dateOfOrder, String OID, String prodInfo){
         this.prodImg = prodImg;
         this.prodName = prodName;
         this.prodPrice = prodPrice;
@@ -16,9 +16,10 @@ public class Products {
         this.prodCode = prodCode;
         this.prodDate = dateOfOrder;
         this.OID = OID;
+        this.prodInfo = prodInfo;
     }
 
-    public Products(String prodImg, String prodName, String prodPrice, String prodQty, String prodSize, String prodDate, String OID) {
+    public Products(String prodImg, String prodName, String prodPrice, String prodQty, String prodSize, String prodDate, String OID) { // orders
         this.prodImg = prodImg;
         this.prodName = prodName;
         this.prodPrice = prodPrice;
@@ -98,5 +99,13 @@ public class Products {
 
     public void setOID(String OID) {
         this.OID = OID;
+    }
+
+    public String getProdInfo() {
+        return prodInfo;
+    }
+
+    public void setProdInfo(String prodInfo) {
+        this.prodInfo = prodInfo;
     }
 }

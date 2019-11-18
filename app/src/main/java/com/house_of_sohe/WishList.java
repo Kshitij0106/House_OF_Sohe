@@ -84,7 +84,7 @@ public class WishList extends Fragment {
                         prod.setProdQty("1");
                         prod.setProdPrice(products.getProdPrice());
                         prod.setProdName(products.getProdName());
-                        prod.setProdSize("M");
+                        prod.setProdSize(products.getProdSize());
 
                         cartRefernce.child(uid).child(products.getProdCode()).setValue(prod);
                         Toast.makeText(getActivity(), "Added To Cart", Toast.LENGTH_SHORT).show();
