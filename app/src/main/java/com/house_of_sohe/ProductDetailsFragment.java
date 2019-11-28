@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager.widget.ViewPager;
 
 import android.view.LayoutInflater;
@@ -28,6 +29,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.house_of_sohe.Common.Connectivity;
 import com.house_of_sohe.Model.BannerImages;
 import com.house_of_sohe.Model.Products;
 import com.house_of_sohe.Transformer.ImageTransformer;
@@ -40,6 +42,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class ProductDetailsFragment extends Fragment {
+    public SwipeRefreshLayout swipeProdDetails;
     private ViewPager prodImagesViewPager;
     private List<BannerImages> imagesList;
     private DatabaseReference imagesRef;
@@ -64,6 +67,8 @@ public class ProductDetailsFragment extends Fragment {
         String prodCode = prodRef.getString("prodCode");
 
         View view = inflater.inflate(R.layout.fragment_product_details, container, false);
+
+        swipeProdDetails = view.findViewById(R.id.swipeLayoutProdDetails);
 
         prodDetailsToCart = view.findViewById(R.id.prodDetailsToCart);
         verticalGoToButton = view.findViewById(R.id.verticalGoToButton);
@@ -92,12 +97,27 @@ public class ProductDetailsFragment extends Fragment {
             detailsRef = FirebaseDatabase.getInstance().getReference("Products").child(heading).child("Items").child(prodCode);
         }
 
-        loadImages();
-        loadData();
-        setButtons();
-        setSize();
-
+        swipeProdDetails.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                load();
+            }
+        });
+        load();
         return view;
+    }
+
+    public void load(){
+        if(Connectivity.isConnectedToInternet(getActivity())){
+            swipeProdDetails.setRefreshing(false);
+
+            loadImages();
+            loadData();
+            setButtons();
+            setSize();
+        }else{
+            Toast.makeText(getActivity(), "Please Check Your Connection !", Toast.LENGTH_LONG).show();
+        }
     }
 
     private void loadImages() {

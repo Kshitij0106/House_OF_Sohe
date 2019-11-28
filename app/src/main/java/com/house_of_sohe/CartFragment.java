@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -30,6 +31,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.house_of_sohe.Common.Connectivity;
 import com.house_of_sohe.Model.Orders;
 import com.house_of_sohe.Model.Products;
 import com.house_of_sohe.ViewHolder.CartViewHolder;
@@ -43,6 +45,7 @@ import java.util.List;
 import java.util.Locale;
 
 public class CartFragment extends Fragment implements View.OnClickListener {
+    private SwipeRefreshLayout swipeCart;
     private TextView cartSubTotal, cartDeliveryPrice, cartTotalPrice, emptyCart, showNow, goToOrders;
     private ImageView cartToWishList, clearCart;
     private Button cartVerifyDetails, cartPlaceOrder;
@@ -66,6 +69,7 @@ public class CartFragment extends Fragment implements View.OnClickListener {
 
         final View view = inflater.inflate(R.layout.fragment_cart, container, false);
 
+        swipeCart = view.findViewById(R.id.swipeLayoutCart);
         cartToWishList = view.findViewById(R.id.cartToWishList);
         clearCart = view.findViewById(R.id.clearCart);
         emptyCart = view.findViewById(R.id.emptyCart);
@@ -93,7 +97,17 @@ public class CartFragment extends Fragment implements View.OnClickListener {
         final FirebaseUser user = auth.getCurrentUser();
         final String uid = user.getUid();
 
-        loadData(uid);
+        cartReference = FirebaseDatabase.getInstance().getReference("Cart").child(uid);
+
+        swipeCart.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadData();
+                checkCart();
+            }
+        });
+
+        loadData();
         checkCart();
 
         userRef = FirebaseDatabase.getInstance().getReference("Users").child(uid);
@@ -131,90 +145,94 @@ public class CartFragment extends Fragment implements View.OnClickListener {
         return view;
     }
 
-    private void loadData(String uid){
-        cartReference = FirebaseDatabase.getInstance().getReference("Cart").child(uid);
-        cartOptions = new FirebaseRecyclerOptions.Builder<Products>().setQuery(cartReference, Products.class).build();
-        cartAdapter = new FirebaseRecyclerAdapter<Products, CartViewHolder>(cartOptions) {
-            @Override
-            protected void onBindViewHolder(@NonNull final CartViewHolder cartViewHolder, int i, @NonNull final Products products) {
-                Picasso.get().load(products.getProdImg()).fit().centerCrop().into(cartViewHolder.imageInCart);
-                cartViewHolder.nameInCart.setText(products.getProdName());
-                cartViewHolder.qtyInCart.setNumber(products.getProdQty());
-                cartViewHolder.sizeInCart.setText(products.getProdSize());
+    private void loadData(){
+        if(Connectivity.isConnectedToInternet(getActivity())) {
+            swipeCart.setRefreshing(false);
+            cartOptions = new FirebaseRecyclerOptions.Builder<Products>().setQuery(cartReference, Products.class).build();
+            cartAdapter = new FirebaseRecyclerAdapter<Products, CartViewHolder>(cartOptions) {
+                @Override
+                protected void onBindViewHolder(@NonNull final CartViewHolder cartViewHolder, int i, @NonNull final Products products) {
+                    Picasso.get().load(products.getProdImg()).fit().centerCrop().into(cartViewHolder.imageInCart);
+                    cartViewHolder.nameInCart.setText(products.getProdName());
+                    cartViewHolder.qtyInCart.setNumber(products.getProdQty());
+                    cartViewHolder.sizeInCart.setText(products.getProdSize());
 
-                Locale locale = new Locale("en", "IN");
-                final NumberFormat format = NumberFormat.getCurrencyInstance(locale);
-                int prodAmt = Integer.parseInt(products.getProdQty()) * Integer.parseInt(products.getProdPrice());
+                    Locale locale = new Locale("en", "IN");
+                    final NumberFormat format = NumberFormat.getCurrencyInstance(locale);
+                    int prodAmt = Integer.parseInt(products.getProdQty()) * Integer.parseInt(products.getProdPrice());
 //                cartViewHolder.priceInCart.setText(prodAmt);
 //                String amt = cartViewHolder.priceInCart.getText().toString();
-                cartViewHolder.priceInCart.setText(format.format(prodAmt));
+                    cartViewHolder.priceInCart.setText(format.format(prodAmt));
 
-                cartViewHolder.selectSize.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        setSizeDialog(products.getProdCode());
+                    cartViewHolder.selectSize.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            setSizeDialog(products.getProdCode());
+                        }
+                    });
+
+                    cartViewHolder.qtyInCart.setRange(0, 5);
+                    if (cartViewHolder.qtyInCart.getNumber().equals("0")) {
+                        cartReference.child(products.getProdCode()).removeValue();
                     }
-                });
+                    cartViewHolder.qtyInCart.setOnValueChangeListener(new ElegantNumberButton.OnValueChangeListener() {
+                        @Override
+                        public void onValueChange(ElegantNumberButton view, int oldValue, int newValue) {
+                            String newQty = cartViewHolder.qtyInCart.getNumber();
+                            cartViewHolder.qtyInCart.setNumber(String.valueOf(newValue));
+                            String price = products.getProdPrice();
+                            int amt = Integer.parseInt(newQty) * Integer.parseInt(price);
+                            cartViewHolder.priceInCart.setText(format.format(amt));
 
-                cartViewHolder.qtyInCart.setRange(0, 5);
-                if (cartViewHolder.qtyInCart.getNumber().equals("0")) {
-                    cartReference.child(products.getProdCode()).removeValue();
+                            cartReference.child(products.getProdCode()).child("prodQty").setValue(newQty);
+                        }
+                    });
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy");
+                    String currDate = sdf.format(new Date());
+                    String oID = String.valueOf(System.currentTimeMillis());
+
+                    cartViewHolder.removeFromCart.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            AlertDialog.Builder removeDialog = new AlertDialog.Builder(getActivity());
+                            removeDialog.setMessage("Are you sure you want to remove " + products.getProdName() + " from Cart");
+                            removeDialog.setCancelable(false);
+                            removeDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    cartReference.child(products.getProdCode()).removeValue();
+                                    Toast.makeText(getActivity(), "Removed From Cart", Toast.LENGTH_SHORT).show();
+                                }
+                            }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    dialogInterface.dismiss();
+                                }
+                            });
+                            removeDialog.show();
+                        }
+                    });
+
+                    productsList.add(new Products(products.getProdImg(), products.getProdName(), products.getProdPrice(),
+                            products.getProdQty(), products.getProdSize(), currDate, oID));
+
                 }
-                cartViewHolder.qtyInCart.setOnValueChangeListener(new ElegantNumberButton.OnValueChangeListener() {
-                    @Override
-                    public void onValueChange(ElegantNumberButton view, int oldValue, int newValue) {
-                        String newQty = cartViewHolder.qtyInCart.getNumber();
-                        cartViewHolder.qtyInCart.setNumber(String.valueOf(newValue));
-                        String price = products.getProdPrice();
-                        int amt = Integer.parseInt(newQty) * Integer.parseInt(price);
-                        cartViewHolder.priceInCart.setText(format.format(amt));
 
-                        cartReference.child(products.getProdCode()).child("prodQty").setValue(newQty);
-                    }
-                });
-                SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy");
-                String currDate = sdf.format(new Date());
-                String oID = String.valueOf(System.currentTimeMillis());
+                @NonNull
+                @Override
+                public CartViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                    View view1 = LayoutInflater.from(parent.getContext()).inflate(R.layout.cart_layout, parent, false);
+                    CartViewHolder cvh = new CartViewHolder(view1);
+                    return cvh;
+                }
+            };
 
-                cartViewHolder.removeFromCart.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        AlertDialog.Builder removeDialog = new AlertDialog.Builder(getActivity());
-                        removeDialog.setMessage("Are you sure you want to remove " + products.getProdName() + " from Cart");
-                        removeDialog.setCancelable(false);
-                        removeDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                cartReference.child(products.getProdCode()).removeValue();
-                                Toast.makeText(getActivity(), "Removed From Cart", Toast.LENGTH_SHORT).show();
-                            }
-                        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                dialogInterface.dismiss();
-                            }
-                        });
-                        removeDialog.show();
-                    }
-                });
-
-                productsList.add(new Products(products.getProdImg(), products.getProdName(), products.getProdPrice(),
-                        products.getProdQty(), products.getProdSize(), currDate, oID));
-
-            }
-
-            @NonNull
-            @Override
-            public CartViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view1 = LayoutInflater.from(parent.getContext()).inflate(R.layout.cart_layout, parent, false);
-                CartViewHolder cvh = new CartViewHolder(view1);
-                return cvh;
-            }
-        };
-
-        cartRecyclerview.setLayoutManager(new LinearLayoutManager(getActivity()));
-        cartRecyclerview.setAdapter(cartAdapter);
-        cartAdapter.startListening();
+            cartRecyclerview.setLayoutManager(new LinearLayoutManager(getActivity()));
+            cartRecyclerview.setAdapter(cartAdapter);
+            cartAdapter.startListening();
+        }else {
+            Toast.makeText(getActivity(), "Please Check Your Connection !", Toast.LENGTH_LONG).show();
+        }
     }
 
     private void checkCart(){

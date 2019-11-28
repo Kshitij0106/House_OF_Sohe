@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Register.SignUp"
-    android:background="#FEEAE6">
+    android:background="#FEEAE6"
+    tools:context=".Register.SignUp">
 
     <ImageView
         android:layout_width="148dp"
@@ -90,9 +90,9 @@
             android:layout_marginLeft="3dp"
             android:drawableLeft="@drawable/ic_phone_black_24dp"
             android:ems="14"
-            android:maxLength="10"
             android:hint=" Phone Number"
             android:inputType="text|number"
+            android:maxLength="10"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -173,13 +173,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Skip For Now"
-        android:textSize="20sp"
         android:textColor="#442C2E"
+        android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.977" />
-
 
 </androidx.constraintlayout.widget.ConstraintLayout>

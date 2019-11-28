@@ -26,7 +26,7 @@
 
         <TextView
             android:id="@+id/prodName"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="20dp"
             android:layout_gravity="center"
             android:layout_marginLeft="3dp"
@@ -47,10 +47,12 @@
         <TextView
             android:id="@+id/prodDescription"
             android:layout_width="match_parent"
-            android:layout_height="30dp"
+            android:layout_height="45dp"
             android:layout_marginLeft="3dp"
-            android:text="Kalamkari top with chanderi umbrella shirt"
-            android:textSize="10sp" />
+            android:padding="2dp"
+            android:textColor="#000"
+            android:maxLines="2"
+            android:textSize="13sp" />
 
         <TextView
             android:id="@+id/prodCodeItem"

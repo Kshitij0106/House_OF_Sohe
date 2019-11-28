@@ -4,178 +4,196 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".HomePageFragment"
+    android:background="#FEEAE6"
     android:padding="2dp"
-    android:background="#FEEAE6">
+    tools:context=".HomePageFragment">
 
-    <TextView
-        android:id="@+id/locationText"
-        android:layout_width="307dp"
-        android:layout_height="46dp"
-        android:layout_marginBottom="10dp"
-        android:drawableLeft="@drawable/ic_location_on_black_24dp"
-        android:textColor="#000"
-        android:gravity="center"
-        android:textAlignment="center"
-        android:textSize="16sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <ImageView
-        android:id="@+id/filterCategories"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:src="@drawable/ic_sort_black_24dp"
-        app:layout_constraintBottom_toTopOf="@+id/scrollView2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.673"
-        app:layout_constraintStart_toEndOf="@+id/locationText"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.023" />
-
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/scrollView2"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeLayoutHomePage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingBottom="5dp"
-        android:layout_marginTop="55dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.63"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/locationText"
-        tools:visibility="visible">
+        app:layout_constraintTop_toTopOf="parent">
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            app:layout_constraintStart_toStartOf="parent">
+            android:layout_height="match_parent">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <androidx.appcompat.widget.SearchView
-                    android:id="@+id/searchViewHome"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:padding="4dp"
-                    android:layout_below="@id/locationText"
-                    app:layout_constraintBottom_toBottomOf="@id/imgBanner"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.555"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/locationText"
-                    app:layout_constraintVertical_bias="0.03"
-                    app:queryHint="Search For Your Favourite Clothes" />
-
-                <ViewFlipper
-                    android:id="@+id/imgBanner"
-                    android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    android:background="@drawable/banner_background"
-                    android:paddingBottom="5dp" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/linearLayout2"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:padding="5dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent">
-
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/topHeadingsRecyclerView"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_marginBottom="2dp"
-                    android:background="@drawable/banner_background" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:padding="5dp"
+            <TextView
+                android:id="@+id/locationText"
+                android:layout_width="307dp"
+                android:layout_height="46dp"
+                android:layout_marginBottom="10dp"
+                android:drawableLeft="@drawable/ic_location_on_black_24dp"
+                android:gravity="center"
+                android:textAlignment="center"
+                android:textColor="#000"
+                android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Browse Products from Top 4 Categories"
-                    android:textSize="20sp"
-                    android:textColor="#000"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginBottom="5dp"
-                    android:textStyle="bold"/>
+            <ImageView
+                android:id="@+id/filterCategories"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:src="@drawable/ic_sort_black_24dp"
+                app:layout_constraintBottom_toTopOf="@+id/scrollView2"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.673"
+                app:layout_constraintStart_toEndOf="@+id/locationText"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.023" />
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/categoryRecyclerView"
+            <androidx.core.widget.NestedScrollView
+                android:id="@+id/scrollView2"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="55dp"
+                android:paddingBottom="5dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.63"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/locationText"
+                tools:visibility="visible">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_below="@id/imgBanner"
-                    android:background="@drawable/banner_background" />
+                    android:orientation="vertical"
+                    app:layout_constraintStart_toStartOf="parent">
 
-            </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
 
-        </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+                        <androidx.appcompat.widget.SearchView
+                            android:id="@+id/searchViewHome"
+                            android:layout_width="match_parent"
+                            android:layout_height="50dp"
+                            android:layout_below="@id/locationText"
+                            android:padding="4dp"
+                            android:layout_marginBottom="4dp"
+                            app:layout_constraintBottom_toBottomOf="@id/imgBanner"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintHorizontal_bias="0.555"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/locationText"
+                            app:layout_constraintVertical_bias="0.03"
+                            app:queryHint="Search For Your Favourite Clothes" />
 
-    <com.github.clans.fab.FloatingActionMenu
-        android:id="@+id/fabMenu"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:menu_showShadow="true"
-        app:menu_fab_label=""
-        app:menu_openDirection="up"
-        app:menu_backgroundColor="@android:color/transparent"
-        android:layout_margin="16dp"
-        app:menu_labels_textColor="#232F34"
-        app:menu_labels_colorNormal="#EF9A9A"
-        app:menu_colorNormal="#E53935">
+                        <ViewFlipper
+                            android:id="@+id/imgBanner"
+                            android:layout_width="match_parent"
+                            android:layout_height="200dp"
+                            android:background="@drawable/banner_background"
+                            android:paddingBottom="5dp" />
 
-        <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/fabSettings"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:fab_label="Settings"
-            app:fab_size="mini"
-            app:fab_colorNormal="#E53935"
-            android:src="@drawable/ic_settings_black_24dp"/>
+                    </LinearLayout>
 
-        <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/fabWishList"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:fab_label="WishList"
-            app:fab_size="mini"
-            app:fab_colorNormal="#E53935"
-            android:src="@drawable/wishlist_icon"/>
+                    <LinearLayout
+                        android:id="@+id/linearLayout2"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:padding="5dp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent">
 
-        <com.github.clans.fab.FloatingActionButton
-            android:id="@+id/fabCart"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:fab_label="Cart"
-            app:fab_size="mini"
-            app:fab_colorNormal="#E53935"
-            android:src="@drawable/cart_icon"/>
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/topHeadingsRecyclerView"
+                            android:layout_width="match_parent"
+                            android:layout_height="860dp"
+                            android:layout_marginBottom="2dp"
+                            android:background="@drawable/banner_background" />
 
-    </com.github.clans.fab.FloatingActionMenu>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:padding="5dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginLeft="16dp"
+                            android:layout_marginBottom="5dp"
+                            android:text="Browse Products from Top 4 Categories"
+                            android:textColor="#000"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/categoryRecyclerView"
+                            android:layout_width="match_parent"
+                            android:layout_height="2190dp"
+                            android:layout_below="@id/imgBanner"
+                            android:background="@drawable/banner_background" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+            </androidx.core.widget.NestedScrollView>
+
+            <com.github.clans.fab.FloatingActionMenu
+                android:id="@+id/fabMenu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:menu_backgroundColor="@android:color/transparent"
+                app:menu_colorNormal="#E53935"
+                app:menu_fab_label=""
+                app:menu_labels_colorNormal="#EF9A9A"
+                app:menu_labels_textColor="#232F34"
+                app:menu_openDirection="up"
+                app:menu_showShadow="true">
+
+                <com.github.clans.fab.FloatingActionButton
+                    android:id="@+id/fabSettings"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_settings_black_24dp"
+                    app:fab_colorNormal="#E53935"
+                    app:fab_label="Settings"
+                    app:fab_size="mini" />
+
+                <com.github.clans.fab.FloatingActionButton
+                    android:id="@+id/fabWishList"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/wishlist_icon"
+                    app:fab_colorNormal="#E53935"
+                    app:fab_label="WishList"
+                    app:fab_size="mini" />
+
+                <com.github.clans.fab.FloatingActionButton
+                    android:id="@+id/fabCart"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/cart_icon"
+                    app:fab_colorNormal="#E53935"
+                    app:fab_label="Cart"
+                    app:fab_size="mini" />
+
+            </com.github.clans.fab.FloatingActionMenu>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

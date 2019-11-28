@@ -4,11 +4,14 @@ import android.app.Dialog;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.os.CountDownTimer;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -22,6 +25,7 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.github.clans.fab.FloatingActionButton;
 import com.github.clans.fab.FloatingActionMenu;
+import com.google.android.gms.common.internal.service.Common;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -29,6 +33,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.house_of_sohe.Common.Connectivity;
 import com.house_of_sohe.Model.BannerImages;
 import com.house_of_sohe.Model.TopHeadings;
 import com.house_of_sohe.Model.Products;
@@ -39,6 +44,8 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 
 public class HomePageFragment extends Fragment {
+    public SwipeRefreshLayout swipeHomePage;
+    private SearchView searchView;
     private TextView locationText;
 
     private ImageView filterCategories;
@@ -71,7 +78,11 @@ public class HomePageFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_home_page, container, false);
+        final View view = inflater.inflate(R.layout.fragment_home_page, container, false);
+
+        swipeHomePage = view.findViewById(R.id.swipeLayoutHomePage);
+        searchView = view.findViewById(R.id.searchViewHome);
+        searchView.setBackgroundResource(R.drawable.text_size_border);
 
         auth = FirebaseAuth.getInstance();
         FirebaseUser user = auth.getCurrentUser();
@@ -95,18 +106,32 @@ public class HomePageFragment extends Fragment {
         categoryRecyclerView = view.findViewById(R.id.categoryRecyclerView);
         categoryRecyclerView.setHasFixedSize(true);
 
-        showCategories();
-        topHeadings();
-        category();
-        getImages();
-        showLocation(uid);
-        setFab(view,uid);
-
+        swipeHomePage.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                load(uid,view);
+            }
+        });
+        load(uid,view);
         return view;
     }
 
+    public void load(String uid,View view) {
+        if(Connectivity.isConnectedToInternet(getActivity())){
+            swipeHomePage.setRefreshing(false);
+            showCategories();
+            topHeadings();
+            category();
+            getImages();
+            showLocation(uid);
+            setFab(view, uid);
+        }else {
+            Toast.makeText(getActivity(), "Please Check Your Connection !", Toast.LENGTH_LONG).show();
+        }
+    }
+
     public void showCategories() {
-        filterDialog = new Dialog(getActivity(),R.style.Category_Dialog);
+        filterDialog = new Dialog(getActivity(), R.style.Category_Dialog);
         final TextView cancelText, blouseCategory, kurtaCategory, suitCategory, pantsCategory, lehengaCategory, dressesCategory, palazzoCategory;
 
         filterDialog.setContentView(R.layout.category_popup_layout_dialog);
@@ -178,10 +203,10 @@ public class HomePageFragment extends Fragment {
         });
     }
 
-    public void openCategory(String CategoryName){
+    public void openCategory(String CategoryName) {
         filterDialog.dismiss();
         Bundle categoryBundle = new Bundle();
-        categoryBundle.putString("heading",CategoryName);
+        categoryBundle.putString("heading", CategoryName);
 
         TopHeadingsFragment topHeadingsFragment = new TopHeadingsFragment();
         topHeadingsFragment.setArguments(categoryBundle);
@@ -213,7 +238,7 @@ public class HomePageFragment extends Fragment {
                 adapter.setOnCardClickListener(new ProductsAdapter.OnCardClickListener() {
                     @Override
                     public void OnCardClicked(int position, String prodCode) {
-                       goToProductDetailsFragment(topHeadingsViewHolder.title.getText().toString(),prodCode);
+                        goToProductDetailsFragment(topHeadingsViewHolder.title.getText().toString(), prodCode);
                     }
                 });
 
@@ -239,7 +264,7 @@ public class HomePageFragment extends Fragment {
                 TopHeadingsViewHolder thvh = new TopHeadingsViewHolder(view1);
                 return thvh;
             }
-            
+
         };
 
         topHeadingsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -260,14 +285,14 @@ public class HomePageFragment extends Fragment {
                 ProductsAdapter adapter = new ProductsAdapter(getContext(), prodList);
 
                 topHeadingsViewHolder.productsRecyclerView.setHasFixedSize(true);
-                topHeadingsViewHolder.productsRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(),2));
+                topHeadingsViewHolder.productsRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
                 topHeadingsViewHolder.productsRecyclerView.setAdapter(adapter);
                 adapter.notifyDataSetChanged();
 
                 adapter.setOnCardClickListener(new ProductsAdapter.OnCardClickListener() {
                     @Override
                     public void OnCardClicked(int position, final String prodCode) {
-                        goToProductDetailsFragment(topHeadingsViewHolder.title.getText().toString(),prodCode);
+                        goToProductDetailsFragment(topHeadingsViewHolder.title.getText().toString(), prodCode);
                     }
                 });
 
@@ -285,7 +310,7 @@ public class HomePageFragment extends Fragment {
             @NonNull
             @Override
             public TopHeadingsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view1 = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_top_headings,parent,false);
+                View view1 = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_top_headings, parent, false);
                 TopHeadingsViewHolder thvh = new TopHeadingsViewHolder(view1);
                 return thvh;
             }
@@ -297,10 +322,10 @@ public class HomePageFragment extends Fragment {
         categoryAdapter.notifyDataSetChanged();
     }
 
-    public void goToProductDetailsFragment(String title,String prodCode){
+    public void goToProductDetailsFragment(String title, String prodCode) {
         Bundle prodRef = new Bundle();
-        prodRef.putString("title",title);
-        prodRef.putString("prodCode",prodCode);
+        prodRef.putString("title", title);
+        prodRef.putString("prodCode", prodCode);
 
         ProductDetailsFragment pdf = new ProductDetailsFragment();
         pdf.setArguments(prodRef);
@@ -351,9 +376,9 @@ public class HomePageFragment extends Fragment {
         userRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.child("userColony").exists()){
+                if (dataSnapshot.child("userColony").exists()) {
                     locationText.setText(dataSnapshot.child("userColony").getValue().toString());
-                }else{
+                } else {
                     locationText.setText("");
                 }
             }
@@ -364,7 +389,7 @@ public class HomePageFragment extends Fragment {
         });
     }
 
-    public void setFab(View view1,String uid) {
+    public void setFab(View view1, String uid) {
         wishListRef = FirebaseDatabase.getInstance().getReference("WishList").child(uid);
         cartRef = FirebaseDatabase.getInstance().getReference("Cart").child(uid);
 
@@ -372,7 +397,7 @@ public class HomePageFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 long no = dataSnapshot.getChildrenCount();
-                fabCart.setLabelText("Cart("+no+")");
+                fabCart.setLabelText("Cart(" + no + ")");
             }
 
             @Override
@@ -385,7 +410,7 @@ public class HomePageFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 long no = dataSnapshot.getChildrenCount();
-                fabWishList.setLabelText("WishList("+no+")");
+                fabWishList.setLabelText("WishList(" + no + ")");
             }
 
             @Override
@@ -402,21 +427,21 @@ public class HomePageFragment extends Fragment {
         fabCart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getFragmentManager().beginTransaction().replace(R.id.mainPage,new CartFragment()).addToBackStack("").commit();
+                getFragmentManager().beginTransaction().replace(R.id.mainPage, new CartFragment()).addToBackStack("").commit();
             }
         });
 
         fabWishList.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getFragmentManager().beginTransaction().replace(R.id.mainPage,new WishList()).addToBackStack("").commit();
+                getFragmentManager().beginTransaction().replace(R.id.mainPage, new WishList()).addToBackStack("").commit();
             }
         });
 
         fabSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                getFragmentManager().beginTransaction().replace(R.id.mainPage,new Settings()).addToBackStack("").commit();
+                getFragmentManager().beginTransaction().replace(R.id.mainPage, new Settings()).addToBackStack("").commit();
             }
         });
     }

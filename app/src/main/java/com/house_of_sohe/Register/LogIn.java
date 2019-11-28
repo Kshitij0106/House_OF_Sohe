@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -113,7 +114,6 @@ public class LogIn extends Fragment {
                 goToHomePage();
             }
         });
-
 
         return view;
     }

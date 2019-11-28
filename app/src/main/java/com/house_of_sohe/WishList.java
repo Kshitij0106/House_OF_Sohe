@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +28,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.house_of_sohe.Common.Connectivity;
 import com.house_of_sohe.Model.Products;
 import com.house_of_sohe.ViewHolder.WishListViewHolder;
 import com.squareup.picasso.Picasso;
@@ -35,6 +37,7 @@ import java.text.NumberFormat;
 import java.util.Locale;
 
 public class WishList extends Fragment {
+    private SwipeRefreshLayout swipeWishList;
     private ImageView wishListToCart;
     private TextView wishListTotalItems, emptyWishList, showNow;
 
@@ -53,6 +56,7 @@ public class WishList extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_wish_list, container, false);
 
+        swipeWishList = view.findViewById(R.id.swipeLayoutWishList);
         wishListToCart = view.findViewById(R.id.wishListToCart);
         wishListTotalItems = view.findViewById(R.id.wishListTotalItems);
         emptyWishList = view.findViewById(R.id.emptyWishList);
@@ -64,103 +68,118 @@ public class WishList extends Fragment {
         final String uid = user.getUid();
         cartRefernce = FirebaseDatabase.getInstance().getReference("Cart");
 
-        wishListReference = FirebaseDatabase.getInstance().getReference("WishList").child(uid);
-        wishListOptions = new FirebaseRecyclerOptions.Builder<Products>().setQuery(wishListReference, Products.class).build();
-        wishListAdapter = new FirebaseRecyclerAdapter<Products, WishListViewHolder>(wishListOptions) {
+        swipeWishList.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
-            protected void onBindViewHolder(@NonNull final WishListViewHolder wishListViewHolder, int i, @NonNull final Products products) {
-                Locale locale = new Locale("en", "IN");
-                NumberFormat fmt = NumberFormat.getCurrencyInstance(locale);
-                int amt = Integer.parseInt(products.getProdPrice());
-                wishListViewHolder.wishListProductPrice.setText(fmt.format(amt));
-                Picasso.get().load(products.getProdImg()).fit().centerCrop().into(wishListViewHolder.wishListProductImage);
-
-                wishListViewHolder.wishListToCart.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Products prod = new Products();
-                        prod.setProdImg(products.getProdImg());
-                        prod.setProdCode(products.getProdCode());
-                        prod.setProdQty("1");
-                        prod.setProdPrice(products.getProdPrice());
-                        prod.setProdName(products.getProdName());
-                        prod.setProdSize(products.getProdSize());
-
-                        cartRefernce.child(uid).child(products.getProdCode()).setValue(prod);
-                        Toast.makeText(getActivity(), "Added To Cart", Toast.LENGTH_SHORT).show();
-
-                    }
-                });
-                wishListViewHolder.wishListProductDelete.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        AlertDialog.Builder clearDialog = new AlertDialog.Builder(getActivity());
-                        clearDialog.setMessage("Are you sure you want to remove "+ products.getProdName()+" from WishList");
-                        clearDialog.setCancelable(false);
-                        clearDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                wishListReference.child(products.getProdCode()).removeValue();
-                                Toast.makeText(getActivity(), "Removed From WishList", Toast.LENGTH_SHORT).show();
-                            }
-                        }).setNegativeButton("No", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                dialogInterface.dismiss();
-                            }
-                        });
-                        clearDialog.show();
-                    }
-                });
-            }
-
-            @NonNull
-            @Override
-            public WishListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.wish_list_layout, parent, false);
-                WishListViewHolder wvh = new WishListViewHolder(view);
-                return wvh;
-            }
-        };
-
-        wishListRecyclerView.setHasFixedSize(true);
-        wishListRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
-        wishListRecyclerView.setAdapter(wishListAdapter);
-        wishListAdapter.startListening();
-
-        wishListToCart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getFragmentManager().beginTransaction().replace(R.id.mainPage, new CartFragment()).addToBackStack("").commit();
+            public void onRefresh() {
+                load(uid);
             }
         });
-
-        wishListReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(!dataSnapshot.exists()){
-                    emptyWishList.setVisibility(View.VISIBLE);
-                    showNow.setVisibility(View.VISIBLE);
-                }else{
-                    long num = dataSnapshot.getChildrenCount();
-                    wishListTotalItems.setText(String.valueOf(num));
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
-        showNow.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getFragmentManager().beginTransaction().replace(R.id.mainPage,new HomePageFragment()).commit();
-            }
-        });
-
+        load(uid);
         return view;
+    }
+    public void load(final String uid){
+        if(Connectivity.isConnectedToInternet(getActivity())){
+            swipeWishList.setRefreshing(false);
+
+            wishListReference = FirebaseDatabase.getInstance().getReference("WishList").child(uid);
+            wishListOptions = new FirebaseRecyclerOptions.Builder<Products>().setQuery(wishListReference, Products.class).build();
+            wishListAdapter = new FirebaseRecyclerAdapter<Products, WishListViewHolder>(wishListOptions) {
+                @Override
+                protected void onBindViewHolder(@NonNull final WishListViewHolder wishListViewHolder, int i, @NonNull final Products products) {
+                    Locale locale = new Locale("en", "IN");
+                    NumberFormat fmt = NumberFormat.getCurrencyInstance(locale);
+                    int amt = Integer.parseInt(products.getProdPrice());
+                    wishListViewHolder.wishListProductPrice.setText(fmt.format(amt));
+                    Picasso.get().load(products.getProdImg()).fit().centerCrop().into(wishListViewHolder.wishListProductImage);
+
+                    wishListViewHolder.wishListToCart.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Products prod = new Products();
+                            prod.setProdImg(products.getProdImg());
+                            prod.setProdCode(products.getProdCode());
+                            prod.setProdQty("1");
+                            prod.setProdPrice(products.getProdPrice());
+                            prod.setProdName(products.getProdName());
+                            prod.setProdSize(products.getProdSize());
+
+                            cartRefernce.child(uid).child(products.getProdCode()).setValue(prod);
+                            Toast.makeText(getActivity(), "Added To Cart", Toast.LENGTH_SHORT).show();
+
+                        }
+                    });
+                    wishListViewHolder.wishListProductDelete.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            AlertDialog.Builder clearDialog = new AlertDialog.Builder(getActivity());
+                            clearDialog.setMessage("Are you sure you want to remove "+ products.getProdName()+" from WishList");
+                            clearDialog.setCancelable(false);
+                            clearDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    wishListReference.child(products.getProdCode()).removeValue();
+                                    Toast.makeText(getActivity(), "Removed From WishList", Toast.LENGTH_SHORT).show();
+                                }
+                            }).setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    dialogInterface.dismiss();
+                                }
+                            });
+                            clearDialog.show();
+                        }
+                    });
+                }
+
+                @NonNull
+                @Override
+                public WishListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                    View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.wish_list_layout, parent, false);
+                    WishListViewHolder wvh = new WishListViewHolder(view);
+                    return wvh;
+                }
+            };
+
+            wishListRecyclerView.setHasFixedSize(true);
+            wishListRecyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
+            wishListRecyclerView.setAdapter(wishListAdapter);
+            wishListAdapter.startListening();
+
+            wishListToCart.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    getFragmentManager().beginTransaction().replace(R.id.mainPage, new CartFragment()).addToBackStack("").commit();
+                }
+            });
+
+            wishListReference.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if(!dataSnapshot.exists()){
+                        emptyWishList.setVisibility(View.VISIBLE);
+                        showNow.setVisibility(View.VISIBLE);
+                    }else{
+                        long num = dataSnapshot.getChildrenCount();
+                        wishListTotalItems.setText(String.valueOf(num));
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+
+            showNow.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    getFragmentManager().beginTransaction().replace(R.id.mainPage,new HomePageFragment()).commit();
+                }
+            });
+
+        }else{
+            Toast.makeText(getActivity(), "Please Check Your Connection !", Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override

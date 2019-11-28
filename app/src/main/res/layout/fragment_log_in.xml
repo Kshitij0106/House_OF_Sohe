@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Register.LogIn"
-    android:background="#FEEAE6">
+    android:background="#FEEAE6"
+    tools:context=".Register.LogIn">
 
     <ImageView
         android:layout_width="148dp"
@@ -129,5 +129,5 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.977" />
 
-
 </androidx.constraintlayout.widget.ConstraintLayout>
+

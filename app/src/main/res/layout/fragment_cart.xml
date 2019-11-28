@@ -7,283 +7,303 @@
     android:background="#FEDBD0"
     tools:context=".CartFragment">
 
-    <ImageView
-        android:id="@+id/cartToWishList"
-        android:layout_width="33dp"
-        android:layout_height="34dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="4dp"
-        android:src="@drawable/wishlist_icon"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/text"
-        android:layout_width="wrap_content"
-        android:layout_height="23dp"
-        android:layout_marginLeft="3dp"
-        android:gravity="center"
-        android:padding="3dp"
-        android:layout_marginTop="8dp"
-        android:text="WishList"
-        android:textColor="#000"
-        android:textSize="15sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.043" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:gravity="center"
-        android:textAlignment="center"
-        android:text="Shopping Cart"
-        android:textColor="#000"
-        android:textSize="35sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/cartRecyclerView"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.6" />
-
-    <ImageView
-        android:id="@+id/clearCart"
-        android:layout_width="33dp"
-        android:layout_height="34dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginRight="20dp"
-        android:src="@drawable/ic_delete_black"
-        app:layout_constraintBottom_toTopOf="@+id/clearCartText"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
-
-    <TextView
-        android:id="@+id/clearCartText"
-        android:layout_width="wrap_content"
-        android:layout_height="23dp"
-        android:layout_marginTop="8dp"
-        android:gravity="center"
-        android:padding="3dp"
-        android:text="Clear Cart"
-        android:textAlignment="center"
-        android:textColor="#000"
-        android:textSize="15sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.921"
-        app:layout_constraintStart_toEndOf="@+id/wishListToCart"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.042" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/cartRecyclerView"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeLayoutCart"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="70dp"
-        android:layout_marginBottom="160dp"
-        android:padding="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cartToWishList"
-        app:layout_constraintVertical_bias="0.043" />
-
-    <TextView
-        android:id="@+id/emptyCart"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="136dp"
-        android:drawableLeft="@drawable/empty"
-        android:gravity="center"
-        android:padding="30dp"
-        android:text="Your Cart Is \n Empty !!"
-        android:textColor="#000"
-        android:textSize="30sp"
-        android:visibility="gone"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/shopNow"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
-        android:gravity="center"
-        android:visibility="gone"
-        android:text="Click HERE to Shop From Your Favourite Categories"
-        android:textSize="25sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/emptyCart" />
-
-    <TextView
-        android:id="@+id/goToOrders"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
-        android:gravity="center"
-        android:visibility="gone"
-        android:text="Click HERE to View your ORDERS"
-        android:textSize="25sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/shopNow" />
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/cardView2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:elevation="6dp"
-        app:cardCornerRadius="6dp"
-        app:cardUseCompatPadding="true"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.912">
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#FEDBD0">
+            android:layout_height="match_parent">
 
-            <TextView
-                android:id="@+id/textView3"
-                android:layout_width="250dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="4dp"
-                android:layout_marginLeft="4dp"
-                android:gravity="center|start"
-                android:textColor="#000"
-                android:background="#FEEAE6"
-                android:padding="3dp"
-                android:text="Subtotal : "
-                android:textSize="20sp"
+            <ImageView
+                android:id="@+id/cartToWishList"
+                android:layout_width="33dp"
+                android:layout_height="34dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="4dp"
+                android:src="@drawable/wishlist_icon"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/cartSubTotal"
-                android:layout_width="150dp"
-                android:layout_height="40dp"
-                android:gravity="center|end"
+                android:id="@+id/text"
+                android:layout_width="wrap_content"
+                android:layout_height="23dp"
+                android:layout_marginLeft="3dp"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
                 android:padding="3dp"
-                android:background="#FEEAE6"
-                android:textSize="20sp"
+                android:text="WishList"
+                android:textColor="#000"
+                android:textSize="15sp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.571"
-                app:layout_constraintStart_toEndOf="@+id/textView3"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.043" />
+
+            <TextView
+                android:id="@+id/heading"
+                android:layout_width="wrap_content"
+                android:layout_height="50dp"
+                android:layout_marginLeft="2dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginRight="2dp"
+                android:gravity="center"
+                android:text="Shopping Cart"
+                android:textAlignment="center"
+                android:textColor="#000"
+                android:textSize="30sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toStartOf="@+id/clearCart"
+                app:layout_constraintStart_toEndOf="@+id/cartToWishList"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/clearCart"
+                android:layout_width="33dp"
+                android:layout_height="34dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginRight="20dp"
+                android:src="@drawable/ic_delete_black"
+                app:layout_constraintBottom_toTopOf="@+id/clearCartText"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="1.0" />
+
+            <TextView
+                android:id="@+id/clearCartText"
+                android:layout_width="wrap_content"
+                android:layout_height="23dp"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:padding="3dp"
+                android:text="Clear Cart"
+                android:textAlignment="center"
+                android:textColor="#000"
+                android:textSize="15sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.921"
+                app:layout_constraintStart_toEndOf="@+id/wishListToCart"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.042" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/cartRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="70dp"
+                android:layout_marginBottom="210dp"
+                android:padding="4dp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/textView5"
-                android:layout_width="250dp"
+                android:id="@+id/emptyCart"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="126dp"
+                android:drawableLeft="@drawable/empty"
+                android:gravity="center"
+                android:padding="30dp"
+                android:text="Your Cart Is \n Empty !!"
                 android:textColor="#000"
-                android:layout_height="40dp"
-                android:layout_marginStart="4dp"
-                android:layout_marginLeft="4dp"
-                android:layout_marginTop="1dp"
-                android:gravity="center|start"
-                android:padding="3dp"
-                android:text="Delivery :"
-                android:background="#FEEAE6"
-                android:textSize="20sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView3" />
-
-            <TextView
-                android:id="@+id/cartDeliveryPrice"
-                android:layout_width="150dp"
-                android:layout_height="40dp"
-                android:layout_marginTop="1dp"
-                android:gravity="center|end"
-                android:padding="3dp"
-                android:textSize="20sp"
-                android:background="#FEEAE6"
+                android:textSize="30sp"
+                android:textStyle="bold"
+                android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toEndOf="@+id/textView5"
-                app:layout_constraintTop_toBottomOf="@+id/cartSubTotal" />
-
-            <TextView
-                android:id="@+id/textView9"
-                android:layout_width="250dp"
-                android:layout_height="45dp"
-                android:background="#FEEAE6"
-                android:layout_marginStart="4dp"
-                android:layout_marginLeft="4dp"
-                android:layout_marginTop="3dp"
-                android:gravity="center|start"
-                android:padding="3dp"
-                android:text="Total :"
-                android:textColor="#000"
-                android:textSize="20sp"
-                android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView5" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
-                android:id="@+id/cartTotalPrice"
-                android:layout_width="150dp"
-                android:layout_height="45dp"
-                android:layout_marginTop="3dp"
-                android:gravity="center|end"
-                android:padding="3dp"
-                android:textColor="#000"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                android:background="#FEEAE6"
+                android:id="@+id/shopNow"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="50dp"
+                android:gravity="center"
+                android:text="Click HERE to Shop From Your Favourite Categories"
+                android:textSize="25sp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.498"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/emptyCart" />
+
+            <TextView
+                android:id="@+id/goToOrders"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp"
+                android:layout_marginBottom="20dp"
+                android:gravity="center"
+                android:text="Click HERE to View your ORDERS"
+                android:textSize="25sp"
+                android:visibility="gone"
+                app:layout_constraintBottom_toTopOf="@+id/cardView2"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.498"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/shopNow" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardView2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:elevation="6dp"
+                app:cardCornerRadius="6dp"
+                app:cardUseCompatPadding="true"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toEndOf="@+id/textView9"
-                app:layout_constraintTop_toBottomOf="@+id/cartDeliveryPrice" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.912">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="#FEDBD0">
+
+                    <TextView
+                        android:id="@+id/textView3"
+                        android:layout_width="250dp"
+                        android:layout_height="40dp"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginLeft="4dp"
+                        android:background="#FEEAE6"
+                        android:gravity="center|start"
+                        android:padding="3dp"
+                        android:text="Subtotal : "
+                        android:textColor="#000"
+                        android:textSize="20sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/cartSubTotal"
+                        android:layout_width="150dp"
+                        android:layout_height="40dp"
+                        android:background="#FEEAE6"
+                        android:gravity="center|end"
+                        android:padding="3dp"
+                        android:textSize="20sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.571"
+                        app:layout_constraintStart_toEndOf="@+id/textView3"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/textView5"
+                        android:layout_width="250dp"
+                        android:layout_height="40dp"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginLeft="4dp"
+                        android:layout_marginTop="1dp"
+                        android:background="#FEEAE6"
+                        android:gravity="center|start"
+                        android:padding="3dp"
+                        android:text="Delivery :"
+                        android:textColor="#000"
+                        android:textSize="20sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/textView3" />
+
+                    <TextView
+                        android:id="@+id/cartDeliveryPrice"
+                        android:layout_width="150dp"
+                        android:layout_height="40dp"
+                        android:layout_marginTop="1dp"
+                        android:background="#FEEAE6"
+                        android:gravity="center|end"
+                        android:padding="3dp"
+                        android:textSize="20sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintStart_toEndOf="@+id/textView5"
+                        app:layout_constraintTop_toBottomOf="@+id/cartSubTotal" />
+
+                    <TextView
+                        android:id="@+id/textView9"
+                        android:layout_width="250dp"
+                        android:layout_height="45dp"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginLeft="4dp"
+                        android:layout_marginTop="3dp"
+                        android:background="#FEEAE6"
+                        android:gravity="center|start"
+                        android:padding="3dp"
+                        android:text="Total :"
+                        android:textColor="#000"
+                        android:textSize="20sp"
+                        android:textStyle="bold"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/textView5" />
+
+                    <TextView
+                        android:id="@+id/cartTotalPrice"
+                        android:layout_width="150dp"
+                        android:layout_height="45dp"
+                        android:layout_marginTop="3dp"
+                        android:background="#FEEAE6"
+                        android:gravity="center|end"
+                        android:padding="3dp"
+                        android:textColor="#000"
+                        android:textSize="22sp"
+                        android:textStyle="bold"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="0.0"
+                        app:layout_constraintStart_toEndOf="@+id/textView9"
+                        app:layout_constraintTop_toBottomOf="@+id/cartDeliveryPrice" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <Button
+                android:id="@+id/cartVerifyDetails"
+                android:layout_width="180dp"
+                android:layout_height="40dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/cart_button"
+                android:gravity="center"
+                android:text="Verify Details"
+                android:textColor="#fff"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cardView2" />
+
+            <Button
+                android:id="@+id/cartPlaceOrder"
+                android:layout_width="180dp"
+                android:layout_height="40dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="15dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/cart_button"
+                android:gravity="center"
+                android:text="Place Order"
+                android:textColor="#fff"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/cartVerifyDetails"
+                app:layout_constraintTop_toBottomOf="@+id/cardView2" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </androidx.cardview.widget.CardView>
-
-    <Button
-        android:id="@+id/cartVerifyDetails"
-        android:layout_width="180dp"
-        android:layout_height="40dp"
-        android:layout_marginBottom="10dp"
-        android:background="@drawable/cart_button"
-        android:textColor="#fff"
-        android:layout_marginLeft="5dp"
-        android:gravity="center"
-        android:text="Verify Details"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.103"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/cartPlaceOrder"
-        android:layout_width="180dp"
-        android:layout_height="40dp"
-        android:layout_marginBottom="10dp"
-        android:background="@drawable/cart_button"
-        android:gravity="center"
-        android:textColor="#fff"
-        android:text="Place Order"
-        android:layout_marginRight="5dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.93"
-        app:layout_constraintStart_toStartOf="parent" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

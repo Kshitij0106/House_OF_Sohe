@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +22,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.house_of_sohe.Common.Connectivity;
 import com.house_of_sohe.Model.Products;
 import com.house_of_sohe.ViewHolder.TopHeadingsProductsViewHolder;
 import com.squareup.picasso.Picasso;
@@ -30,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 public class TopHeadingsFragment extends Fragment {
+    private SwipeRefreshLayout swipeTopHeadings;
     private TextView topHeadingsCategoryName;
     private ImageView topHeadingsToHome,topHeadingsShowCategory;
     private Dialog showCategory;
@@ -57,9 +60,10 @@ public class TopHeadingsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         Bundle title = this.getArguments();
-        String heading = title.getString("heading");
+        final String heading = title.getString("heading");
 
         View view = inflater.inflate(R.layout.fragment_top_headings, container, false);
+        swipeTopHeadings = view.findViewById(R.id.swipeLayoutTopHeadings);
 
         topHeadingsCategoryName = view.findViewById(R.id.topHeadingsCategoryName);
         topHeadingsToHome = view.findViewById(R.id.topHeadingsToHome);
@@ -87,59 +91,86 @@ public class TopHeadingsFragment extends Fragment {
             topHeadingsCategoryName.setText(heading);
         }
 
-        topHeadingsProductsOptions = new FirebaseRecyclerOptions.Builder<Products>().setQuery(topHeadingsProductsRef, Products.class).build();
-        topHeadingsProductsAdapter = new FirebaseRecyclerAdapter<Products, TopHeadingsProductsViewHolder>(topHeadingsProductsOptions) {
+        swipeTopHeadings.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
-            protected void onBindViewHolder(@NonNull TopHeadingsProductsViewHolder topHeadingsProductsViewHolder, int i, @NonNull final Products products) {
-                Picasso.get().load(products.getProdImg()).fit().centerCrop().into(topHeadingsProductsViewHolder.verticalProductsImage);
-                topHeadingsProductsViewHolder.verticalProductsName.setText(products.getProdName());
-                topHeadingsProductsViewHolder.verticalProductsDesc.setText(products.getProdDesc());
-
-                Locale locale = new Locale("en","IN");
-                NumberFormat fmt = NumberFormat.getCurrencyInstance(locale);
-                int amt = Integer.parseInt(products.getProdPrice());
-                topHeadingsProductsViewHolder.verticalProductsPrice.setText(fmt.format(amt));
-
-                topHeadingsProductsViewHolder.verticalAddButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        setAddToDialog(products.getProdImg(), products.getProdPrice(), products.getProdName(),products.getProdCode());
-
-                        addToDialog.show();
-                        addToDialog.setCancelable(false);
-                    }
-                });
-            }
-
-            @NonNull
-            @Override
-            public TopHeadingsProductsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view1 = LayoutInflater.from(parent.getContext()).inflate(R.layout.products_vertical, parent, false);
-                TopHeadingsProductsViewHolder tpvh = new TopHeadingsProductsViewHolder(view1);
-                return tpvh;
-            }
-        };
-
-        topHeadingsProductsRecyclerView.setHasFixedSize(true);
-        topHeadingsProductsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        topHeadingsProductsRecyclerView.setAdapter(topHeadingsProductsAdapter);
-        topHeadingsProductsAdapter.startListening();
-        topHeadingsProductsAdapter.notifyDataSetChanged();
-
-        topHeadingsShowCategory.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                setTopHeadingsShowCategory();
+            public void onRefresh() {
+                load(heading);
             }
         });
-
-        topHeadingsToHome.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getFragmentManager().beginTransaction().replace(R.id.mainPage,new HomePageFragment()).commit();
-            }
-        });
+        load(heading);
         return view;
+    }
+
+    private void load(final String heading){
+        if(Connectivity.isConnectedToInternet(getActivity())){
+            swipeTopHeadings.setRefreshing(false);
+            topHeadingsProductsOptions = new FirebaseRecyclerOptions.Builder<Products>().setQuery(topHeadingsProductsRef, Products.class).build();
+            topHeadingsProductsAdapter = new FirebaseRecyclerAdapter<Products, TopHeadingsProductsViewHolder>(topHeadingsProductsOptions) {
+                @Override
+                protected void onBindViewHolder(@NonNull TopHeadingsProductsViewHolder topHeadingsProductsViewHolder, int i, @NonNull final Products products) {
+                    Picasso.get().load(products.getProdImg()).fit().centerCrop().into(topHeadingsProductsViewHolder.verticalProductsImage);
+                    topHeadingsProductsViewHolder.verticalProductsName.setText(products.getProdName());
+                    topHeadingsProductsViewHolder.verticalProductsDesc.setText(products.getProdDesc());
+
+                    Locale locale = new Locale("en","IN");
+                    NumberFormat fmt = NumberFormat.getCurrencyInstance(locale);
+                    int amt = Integer.parseInt(products.getProdPrice());
+                    topHeadingsProductsViewHolder.verticalProductsPrice.setText(fmt.format(amt));
+
+                    topHeadingsProductsViewHolder.verticalAddButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            setAddToDialog(products.getProdImg(), products.getProdPrice(), products.getProdName(),products.getProdCode());
+
+                            addToDialog.show();
+                            addToDialog.setCancelable(false);
+                        }
+                    });
+
+                    topHeadingsProductsViewHolder.prodVerticalCardView.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Bundle prodBundle = new Bundle();
+                            prodBundle.putString("title",heading);
+                            prodBundle.putString("prodCode",products.getProdCode());
+                            ProductDetailsFragment pdf = new ProductDetailsFragment();
+                            pdf.setArguments(prodBundle);
+                            getFragmentManager().beginTransaction().replace(R.id.mainPage, pdf).addToBackStack("").commit();
+                        }
+                    });
+                }
+
+                @NonNull
+                @Override
+                public TopHeadingsProductsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                    View view1 = LayoutInflater.from(parent.getContext()).inflate(R.layout.products_vertical, parent, false);
+                    TopHeadingsProductsViewHolder tpvh = new TopHeadingsProductsViewHolder(view1);
+                    return tpvh;
+                }
+            };
+
+            topHeadingsProductsRecyclerView.setHasFixedSize(true);
+            topHeadingsProductsRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+            topHeadingsProductsRecyclerView.setAdapter(topHeadingsProductsAdapter);
+            topHeadingsProductsAdapter.startListening();
+            topHeadingsProductsAdapter.notifyDataSetChanged();
+
+            topHeadingsShowCategory.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    setTopHeadingsShowCategory();
+                }
+            });
+
+            topHeadingsToHome.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    getFragmentManager().beginTransaction().replace(R.id.mainPage,new HomePageFragment()).commit();
+                }
+            });
+        }else{
+            Toast.makeText(getActivity(), "Please Check Your Connection !", Toast.LENGTH_LONG).show();
+        }
     }
 
     public void setTopHeadingsShowCategory(){
