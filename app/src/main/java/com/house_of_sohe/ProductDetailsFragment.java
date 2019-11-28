@@ -30,6 +30,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.house_of_sohe.Common.Connectivity;
+import com.house_of_sohe.Common.Session;
 import com.house_of_sohe.Model.BannerImages;
 import com.house_of_sohe.Model.Products;
 import com.house_of_sohe.Transformer.ImageTransformer;
@@ -53,6 +54,7 @@ public class ProductDetailsFragment extends Fragment {
     private TextView textSizeSmall, textSizeMedium, textSizeLarge, textSizeXL, textSizeXXL;
     private Button prodDetailsAddToCart;
 
+    private Session session;
     private DatabaseReference cartRef, wishListRef;
     private FirebaseAuth auth;
 
@@ -81,6 +83,7 @@ public class ProductDetailsFragment extends Fragment {
         textSizeLarge = view.findViewById(R.id.textSizeLarge);
         textSizeXL = view.findViewById(R.id.textSizeXL);
         textSizeXXL = view.findViewById(R.id.textSizeXXL);
+        session = new Session(getActivity());
         prodDetailsAddToCart = view.findViewById(R.id.prodDetailsAddToCart);
         prodDetailsAddToWishList = view.findViewById(R.id.prodDetailsAddToWishList);
         auth = FirebaseAuth.getInstance();
@@ -147,7 +150,6 @@ public class ProductDetailsFragment extends Fragment {
                 final Products prod = dataSnapshot.getValue(Products.class);
                 prodDetailsName.setText(prod.getProdName());
                 prodDetailsDesc.setText(prod.getProdDesc());
-//                prodDetailsInfo.setText(prod.getProdInfo());
 
                 String a = prod.getProdInfo();
                 String b = a.replace("\\n", "\n");
@@ -161,16 +163,23 @@ public class ProductDetailsFragment extends Fragment {
                 prodDetailsAddToWishList.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        wishListRef = FirebaseDatabase.getInstance().getReference("WishList").child(uid);
-                        addProducts(prod.getProdName(), prod.getProdCode(), prod.getProdImg(), prod.getProdPrice(), wishListRef);
-
+                        if(session.isLoggedIn()) {
+                            wishListRef = FirebaseDatabase.getInstance().getReference("WishList").child(uid);
+                            addProducts(prod.getProdName(), prod.getProdCode(), prod.getProdImg(), prod.getProdPrice(), wishListRef);
+                        }else{
+                            Toast.makeText(getActivity(), "Log In First", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
                 prodDetailsAddToCart.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        cartRef = FirebaseDatabase.getInstance().getReference("Cart").child(uid);
-                        addProducts(prod.getProdName(), prod.getProdCode(), prod.getProdImg(), prod.getProdPrice(), cartRef);
+                        if (session.isLoggedIn()) {
+                            cartRef = FirebaseDatabase.getInstance().getReference("Cart").child(uid);
+                            addProducts(prod.getProdName(), prod.getProdCode(), prod.getProdImg(), prod.getProdPrice(), cartRef);
+                        }else{
+                            Toast.makeText(getActivity(), "Log In First", Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
             }

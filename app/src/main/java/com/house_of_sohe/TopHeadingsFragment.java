@@ -23,6 +23,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.house_of_sohe.Common.Connectivity;
+import com.house_of_sohe.Common.Session;
 import com.house_of_sohe.Model.Products;
 import com.house_of_sohe.ViewHolder.TopHeadingsProductsViewHolder;
 import com.squareup.picasso.Picasso;
@@ -44,6 +45,7 @@ public class TopHeadingsFragment extends Fragment {
 
     private ArrayList<Products> topHeadingsProductsList;
 
+    private Session session;
     private TextView closeText;
     private ImageView addToCart, addToWishList;
     private Dialog addToDialog;
@@ -72,6 +74,7 @@ public class TopHeadingsFragment extends Fragment {
         topHeadingsProductsRecyclerView = view.findViewById(R.id.topHeadingsProductsRecyclerView);
         topHeadingsProductsRecyclerView.setHasFixedSize(true);
 
+        session = new Session(getActivity());
         wishListReference = FirebaseDatabase.getInstance().getReference("WishList");
         cartReference = FirebaseDatabase.getInstance().getReference("Cart");
         auth = FirebaseAuth.getInstance();
@@ -257,56 +260,64 @@ public class TopHeadingsFragment extends Fragment {
     }
 
     public void setAddToDialog(final String img, final String price, final String name, final String code) {
-        final FirebaseUser user = auth.getCurrentUser();
-        final String uid = user.getUid();
+            final FirebaseUser user = auth.getCurrentUser();
+            final String uid = user.getUid();
 
-        addToDialog = new Dialog(getActivity(),R.style.Dialog);
-        addToDialog.setContentView(R.layout.add_to_layout_dialog);
+            addToDialog = new Dialog(getActivity(), R.style.Dialog);
+            addToDialog.setContentView(R.layout.add_to_layout_dialog);
 
-        closeText = addToDialog.findViewById(R.id.closeText);
-        addToCart = addToDialog.findViewById(R.id.addToCartDialog);
-        addToWishList = addToDialog.findViewById(R.id.addToWishListDialog);
+            closeText = addToDialog.findViewById(R.id.closeText);
+            addToCart = addToDialog.findViewById(R.id.addToCartDialog);
+            addToWishList = addToDialog.findViewById(R.id.addToWishListDialog);
 
-        addToCart.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Products products = new Products();
-                products.setProdName(name);
-                products.setProdPrice(price);
-                products.setProdCode(code);
-                products.setProdImg(img);
-                products.setProdSize("M");
-                products.setProdQty("1");
+            addToCart.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (session.isLoggedIn()) {
+                        Products products = new Products();
+                        products.setProdName(name);
+                        products.setProdPrice(price);
+                        products.setProdCode(code);
+                        products.setProdImg(img);
+                        products.setProdSize("M");
+                        products.setProdQty("1");
 
-                cartReference.child(uid).child(code).setValue(products);
+                        cartReference.child(uid).child(code).setValue(products);
 
-                Toast.makeText(getActivity(), "Added To Cart", Toast.LENGTH_SHORT).show();
-                addToDialog.dismiss();
-            }
-        });
-        addToWishList.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Products prod = new Products();
-                prod.setProdName(name);
-                prod.setProdImg(img);
-                prod.setProdCode(code);
-                prod.setProdPrice(price);
-                prod.setProdQty("1");
-                prod.setProdSize("M");
+                        Toast.makeText(getActivity(), "Added To Cart", Toast.LENGTH_SHORT).show();
+                        addToDialog.dismiss();
+                    } else {
+                        Toast.makeText(getActivity(), "Log In First", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+            addToWishList.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(session.isLoggedIn()) {
+                        Products prod = new Products();
+                        prod.setProdName(name);
+                        prod.setProdImg(img);
+                        prod.setProdCode(code);
+                        prod.setProdPrice(price);
+                        prod.setProdQty("1");
+                        prod.setProdSize("M");
 
-                wishListReference.child(uid).child(code).setValue(prod);
+                        wishListReference.child(uid).child(code).setValue(prod);
 
-                Toast.makeText(getActivity(), "Added to WishList", Toast.LENGTH_SHORT).show();
-                addToDialog.dismiss();
-            }
-        });
-        closeText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                addToDialog.dismiss();
-            }
-        });
+                        Toast.makeText(getActivity(), "Added to WishList", Toast.LENGTH_SHORT).show();
+                        addToDialog.dismiss();
+                    }else{
+                        Toast.makeText(getActivity(), "Log In First", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+            closeText.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    addToDialog.dismiss();
+                }
+            });
     }
 
 
