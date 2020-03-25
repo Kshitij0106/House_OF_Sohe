@@ -13,6 +13,8 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.os.CountDownTimer;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -109,15 +111,16 @@ public class HomePageFragment extends Fragment {
         swipeHomePage.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                load(uid,view);
+                load(uid, view);
             }
         });
-        load(uid,view);
+        load(uid, view);
+
         return view;
     }
 
-    public void load(String uid,View view) {
-        if(Connectivity.isConnectedToInternet(getActivity())){
+    public void load(String uid, View view) {
+        if (Connectivity.isConnectedToInternet(getActivity())) {
             swipeHomePage.setRefreshing(false);
             showCategories();
             topHeadings();
@@ -125,7 +128,7 @@ public class HomePageFragment extends Fragment {
             getImages();
             showLocation(uid);
             setFab(view, uid);
-        }else {
+        } else {
             Toast.makeText(getActivity(), "Please Check Your Connection !", Toast.LENGTH_LONG).show();
         }
     }
@@ -255,6 +258,18 @@ public class HomePageFragment extends Fragment {
                         getFragmentManager().beginTransaction().replace(R.id.mainPage, bundleTopHeadings).addToBackStack("").commit();
                     }
                 });
+                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+                        adapter.getFilter().filter(newText);
+                        return false;
+                    }
+                });
             }
 
             @NonNull
@@ -264,7 +279,6 @@ public class HomePageFragment extends Fragment {
                 TopHeadingsViewHolder thvh = new TopHeadingsViewHolder(view1);
                 return thvh;
             }
-
         };
 
         topHeadingsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));

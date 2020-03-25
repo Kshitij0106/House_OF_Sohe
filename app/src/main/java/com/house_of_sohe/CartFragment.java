@@ -122,14 +122,14 @@ public class CartFragment extends Fragment implements View.OnClickListener {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getActivity(), ""+databaseError.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), "" + databaseError.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
 
         cartPlaceOrder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Orders orders = new Orders(user.getEmail(), productsList);
+                Orders orders = new Orders(user.getEmail(), productsList,cartTotalPrice.getText().toString());
                 ordersRef = FirebaseDatabase.getInstance().getReference("Orders").child(uid);
 
                 ordersRef.setValue(orders);
@@ -137,7 +137,7 @@ public class CartFragment extends Fragment implements View.OnClickListener {
                 Toast.makeText(getActivity(), "Order Placed", Toast.LENGTH_SHORT).show();
 
                 cartReference.removeValue();
-                getFragmentManager().beginTransaction().replace(R.id.mainPage,new CartFragment()).addToBackStack(null).commit();
+                getFragmentManager().beginTransaction().replace(R.id.mainPage, new CartFragment()).addToBackStack(null).commit();
 
             }
         });
@@ -145,8 +145,8 @@ public class CartFragment extends Fragment implements View.OnClickListener {
         return view;
     }
 
-    private void loadData(){
-        if(Connectivity.isConnectedToInternet(getActivity())) {
+    private void loadData() {
+        if (Connectivity.isConnectedToInternet(getActivity())) {
             swipeCart.setRefreshing(false);
             cartOptions = new FirebaseRecyclerOptions.Builder<Products>().setQuery(cartReference, Products.class).build();
             cartAdapter = new FirebaseRecyclerAdapter<Products, CartViewHolder>(cartOptions) {
@@ -160,8 +160,6 @@ public class CartFragment extends Fragment implements View.OnClickListener {
                     Locale locale = new Locale("en", "IN");
                     final NumberFormat format = NumberFormat.getCurrencyInstance(locale);
                     int prodAmt = Integer.parseInt(products.getProdQty()) * Integer.parseInt(products.getProdPrice());
-//                cartViewHolder.priceInCart.setText(prodAmt);
-//                String amt = cartViewHolder.priceInCart.getText().toString();
                     cartViewHolder.priceInCart.setText(format.format(prodAmt));
 
                     cartViewHolder.selectSize.setOnClickListener(new View.OnClickListener() {
@@ -174,6 +172,7 @@ public class CartFragment extends Fragment implements View.OnClickListener {
                     cartViewHolder.qtyInCart.setRange(0, 5);
                     if (cartViewHolder.qtyInCart.getNumber().equals("0")) {
                         cartReference.child(products.getProdCode()).removeValue();
+                        total();
                     }
                     cartViewHolder.qtyInCart.setOnValueChangeListener(new ElegantNumberButton.OnValueChangeListener() {
                         @Override
@@ -185,6 +184,7 @@ public class CartFragment extends Fragment implements View.OnClickListener {
                             cartViewHolder.priceInCart.setText(format.format(amt));
 
                             cartReference.child(products.getProdCode()).child("prodQty").setValue(newQty);
+                            total();
                         }
                     });
                     SimpleDateFormat sdf = new SimpleDateFormat("dd-MMM-yyyy");
@@ -202,6 +202,7 @@ public class CartFragment extends Fragment implements View.OnClickListener {
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     cartReference.child(products.getProdCode()).removeValue();
                                     Toast.makeText(getActivity(), "Removed From Cart", Toast.LENGTH_SHORT).show();
+                                    total();
                                 }
                             }).setNegativeButton("No", new DialogInterface.OnClickListener() {
                                 @Override
@@ -210,6 +211,7 @@ public class CartFragment extends Fragment implements View.OnClickListener {
                                 }
                             });
                             removeDialog.show();
+
                         }
                     });
 
@@ -230,12 +232,13 @@ public class CartFragment extends Fragment implements View.OnClickListener {
             cartRecyclerview.setLayoutManager(new LinearLayoutManager(getActivity()));
             cartRecyclerview.setAdapter(cartAdapter);
             cartAdapter.startListening();
-        }else {
+        } else {
             Toast.makeText(getActivity(), "Please Check Your Connection !", Toast.LENGTH_LONG).show();
         }
+        total();
     }
 
-    private void checkCart(){
+    private void checkCart() {
         cartReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull final DataSnapshot dataSnapshot) {
@@ -253,6 +256,38 @@ public class CartFragment extends Fragment implements View.OnClickListener {
 
             }
         });
+    }
+
+    private void total() {
+        cartReference.addValueEventListener(new ValueEventListener() {
+            int amt = 0;
+            int delivery=70;
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot data : dataSnapshot.getChildren()) {
+                    String price = data.child("prodPrice").getValue(String.class);
+                    String qty = data.child("prodQty").getValue(String.class);
+                    amt+=Integer.parseInt(price)*Integer.parseInt(qty);
+                }
+                Locale locale = new Locale("en", "IN");
+                NumberFormat fmt = NumberFormat.getCurrencyInstance(locale);
+                cartSubTotal.setText(fmt.format(amt));
+                if(amt == 0){
+                    delivery = 0;
+                    cartDeliveryPrice.setText(fmt.format(delivery));
+                }else {
+                    cartDeliveryPrice.setText(fmt.format(delivery));
+                }
+                cartTotalPrice.setText(fmt.format(amt + delivery));
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
     }
 
     private void setSizeDialog(final String code) {
@@ -317,7 +352,6 @@ public class CartFragment extends Fragment implements View.OnClickListener {
                 getFragmentManager().beginTransaction().replace(R.id.mainPage, new CartFragment()).addToBackStack(null).commit();
             }
         });
-
     }
 
     private void setAddressDialog() {
@@ -350,18 +384,18 @@ public class CartFragment extends Fragment implements View.OnClickListener {
                 String cCity = completeCity.getText().toString();
                 String cLandmark = completeLandmark.getText().toString();
 
-                if(cHouse.isEmpty()){
+                if (cHouse.isEmpty()) {
                     completeHouseNo.setError("Add Correct House No");
                 }
                 if (cColony.isEmpty()) {
                     completeColony.setError("Add Correct Colony");
                 }
                 if (cPinCode.isEmpty()) {
-                   completePinCode.setError("Add Correct Pin Code");
+                    completePinCode.setError("Add Correct Pin Code");
                 }
                 if (cCity.isEmpty()) {
                     completeCity.setError("Add Correct City");
-                }else {
+                } else {
                     userRef.child("userHouseNo").setValue(cHouse);
                     userRef.child("userColony").setValue(cColony);
                     userRef.child("userPinCode").setValue(cPinCode);
@@ -370,7 +404,7 @@ public class CartFragment extends Fragment implements View.OnClickListener {
 
                     Toast.makeText(getActivity(), "Address Updated Successfully", Toast.LENGTH_SHORT).show();
                     addDialog.dismiss();
-                    getFragmentManager().beginTransaction().replace(R.id.mainPage,new CartFragment()).addToBackStack(null).commit();
+                    getFragmentManager().beginTransaction().replace(R.id.mainPage, new CartFragment()).addToBackStack(null).commit();
                 }
             }
         });
