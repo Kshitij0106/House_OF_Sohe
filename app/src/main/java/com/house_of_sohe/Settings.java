@@ -69,6 +69,7 @@ public class Settings extends Fragment implements View.OnClickListener{
                     session.setLoggedIn(false);
                     Toast.makeText(getActivity(), "LogOut Successful", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(getActivity(),MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
                 }
             }).setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -99,6 +100,7 @@ public class Settings extends Fragment implements View.OnClickListener{
                     Session session = new Session(getActivity());
                     session.setLoggedIn(false);
                     Intent intent = new Intent(getActivity(),MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
 
                     user.delete();

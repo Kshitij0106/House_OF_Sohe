@@ -63,7 +63,7 @@ public class ProductDetailsFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)  {
         Bundle prodRef = this.getArguments();
         String heading = prodRef.getString("title");
         String prodCode = prodRef.getString("prodCode");
